@@ -39,6 +39,26 @@ theme_set(theme_minimal())
 ```{r}
 olympics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-07-27/olympics.csv')
 
+
+```
+
+## Filtered Data Sets
+
+```{r}
+summer_gold <- olympics %>% 
+  filter(season == "Summer") %>% 
+  drop_na(medal) %>% 
+  filter(medal == "Gold") 
+
+summer_gold
+  
+ 
+  group_by(noc) %>% 
+  count(medal) %>% 
+  arrange(desc(n))
+
+
+
 ```
 
 
