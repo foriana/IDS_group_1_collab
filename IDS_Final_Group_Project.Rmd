@@ -54,9 +54,9 @@ summer_gold <- olympics %>%
    mutate(countryName = countrycode(noc, "genc3c", "country.name")) %>% 
    mutate(countryName = ifelse(countryName == "USA", "United States", countryName)) %>% 
    mutate(countryName = ifelse(noc == "ALG", "Algeria", countryName)) %>% 
-     mutate(countryName = ifelse(noc == "BAH", "Bahamas", countryName)) %>%
-     mutate(countryName = ifelse(noc == "BUL", "Bulgaria", countryName)) %>%
-     mutate(countryName = ifelse(noc == "CHI", "Chile", countryName)) %>%
+   mutate(countryName = ifelse(noc == "BAH", "Bahamas", countryName)) %>%
+   mutate(countryName = ifelse(noc == "BUL", "Bulgaria", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CHI", "Chile", countryName)) %>%
    mutate(countryName = ifelse(noc == "CRC", "Costa Rica", countryName)) %>%
    mutate(countryName = ifelse(noc == "CRO", "Croatia", countryName)) %>%
    mutate(countryName = ifelse(noc == "DEN", "Denmark", countryName)) %>%
@@ -74,12 +74,12 @@ summer_gold <- olympics %>%
    mutate(countryName = ifelse(noc == "POR", "Portugal", countryName)) %>%
    mutate(countryName = ifelse(noc == "PUR", "Puerto Rico", countryName)) %>%
    mutate(countryName = ifelse(noc == "RSA", "South Africa", countryName)) %>%
-  mutate(countryName = ifelse(noc == "SLO", "Slovenia", countryName)) %>%
-  mutate(countryName = ifelse(noc == "SUI", "Switzerland", countryName)) %>%
-  mutate(countryName = ifelse(noc == "UAE", "United Arab Emirates", countryName)) %>%
-  mutate(countryName = ifelse(noc == "URU", "Uruguay", countryName)) %>%
-  mutate(countryName = ifelse(noc == "VIE", "Vietnam", countryName)) %>%
-  mutate(countryName = ifelse(noc == "ZIM", "Zimbabwe", countryName)) %>% 
+   mutate(countryName = ifelse(noc == "SLO", "Slovenia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "SUI", "Switzerland", countryName)) %>%
+   mutate(countryName = ifelse(noc == "UAE", "United Arab Emirates", countryName)) %>%
+   mutate(countryName = ifelse(noc == "URU", "Uruguay", countryName)) %>%
+   mutate(countryName = ifelse(noc == "VIE", "Vietnam", countryName)) %>%
+   mutate(countryName = ifelse(noc == "ZIM", "Zimbabwe", countryName)) %>% 
 drop_na(countryName)
   #taking time to find the codes that weren't matched and double-checking to see if the countries exist --> add to data set
 
