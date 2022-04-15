@@ -48,15 +48,12 @@ olympics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/t
 summer_gold <- olympics %>% 
   filter(season == "Summer") %>% 
   drop_na(medal) %>% 
-  filter(medal == "Gold") 
+  filter(medal == "Gold") %>% 
+   mutate(countryName = countrycode(noc, "genc3c", "country.name")) %>% 
+   mutate(countryName = ifelse(countryName == "USA", "United States", countryName)) #taking time to find the codes that weren't matched and double-checking to see if the countries exist --> add to data set 
 
 summer_gold
   
- 
-  group_by(noc) %>% 
-  count(medal) %>% 
-  arrange(desc(n))
-
 
 
 ```
@@ -67,3 +64,15 @@ Instructions that might be useful to remember:
 * **NEW!!** With animated graphs, add `eval=FALSE` to the code chunk that creates the animation and saves it using `anim_save()`. Add another code chunk to reread the gif back into the file. See the [tutorial](https://animation-and-interactivity-in-r.netlify.app/) for help. 
 
 * When you are finished with ALL the exercises, uncomment the options at the top so your document looks nicer. Don't do it before then, or else you might miss some important warnings and messages.
+
+
+##Taking data out "on a walk" (aka brainstorming)
+
+```{r}
+
+summer_gold %>%
+  group_by(countryName) %>% 
+  count(medal) %>% 
+  arrange(desc(n)) #results in a medal count in descending order
+
+```
