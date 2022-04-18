@@ -11,20 +11,96 @@ output: html_document
 
 ## R Markdown
 
+
+```{r}
+library(tidyverse)     # for data cleaning and plotting
+library(lubridate)     # for date manipulation
+library(openintro)     # for the abbr2state() function
+library(maps)          # for map data
+library(ggmap)         # for mapping points on maps
+library(gplots)        # for col2hex() function
+library(RColorBrewer)  # for color palettes
+library(sf)            # for working with spatial data
+library(leaflet)       # for highly customizable mapping
+library(ggthemes)      
+library(plotly)        # for the ggplotly() - basic interactivity
+library(gganimate)     # for adding animation layers to ggplots
+library(gifski)        # for creating the gif (don't need to load this library every time,but need it installed)
+library(transformr)    # for "tweening" (gganimate)
+library(shiny)         # for creating interactive apps
+library(patchwork)     # for nicely combining ggplot2 graphs
+library(gt)            # for creating nice tables
+library(countrycode)
+theme_set(theme_minimal())
+```
+
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
+```{r}
+
+olympics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-07-27/olympics.csv')
+
+world <- map_data("world")
+
+summer_gold <- olympics %>% 
+  filter(season == "Summer") %>% 
+  drop_na(medal) %>% 
+  filter(medal == "Gold", ) %>%
+   mutate(countryName = countrycode(noc, "genc3c", "country.name")) %>% 
+   mutate(countryName = ifelse(countryName == "USA", "United States", countryName)) %>% 
+   mutate(countryName = ifelse(noc == "ALG", "Algeria", countryName)) %>% 
+   mutate(countryName = ifelse(noc == "BAH", "Bahamas", countryName)) %>%
+   mutate(countryName = ifelse(noc == "BUL", "Bulgaria", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CHI", "Chile", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CRC", "Costa Rica", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CRO", "Croatia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "DEN", "Denmark", countryName)) %>%
+   mutate(countryName = ifelse(noc == "FIJ", "Fiji", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GER", "Germany", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GRE", "Greece", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GRN", "Grenada", countryName)) %>%
+   mutate(countryName = ifelse(noc == "HAI", "Haiti", countryName)) %>%
+   mutate(countryName = ifelse(noc == "INA", "Indonesia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "IRI", "Iran", countryName)) %>%
+   mutate(countryName = ifelse(noc == "LAT", "Latvia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "MGL", "Mongolia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "NED", "Netherlands", countryName)) %>%
+   mutate(countryName = ifelse(noc == "NGR", "Nigeria", countryName)) %>%
+   mutate(countryName = ifelse(noc == "POR", "Portugal", countryName)) %>%
+   mutate(countryName = ifelse(noc == "PUR", "Puerto Rico", countryName)) %>%
+   mutate(countryName = ifelse(noc == "RSA", "South Africa", countryName)) %>%
+   mutate(countryName = ifelse(noc == "SLO", "Slovenia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "SUI", "Switzerland", countryName)) %>%
+   mutate(countryName = ifelse(noc == "UAE", "United Arab Emirates", countryName)) %>%
+   mutate(countryName = ifelse(noc == "URU", "Uruguay", countryName)) %>%
+   mutate(countryName = ifelse(noc == "VIE", "Vietnam", countryName)) %>%
+   mutate(countryName = ifelse(noc == "ZIM", "Zimbabwe", countryName)) %>% 
+drop_na(countryName)
+  #taking time to find the codes that weren't matched and double-checking to see if the countries exist --> add to data set
+
+# Footnote or mention in part of the project the choice to leave out territories not fully recognized, such as Kosovo and Chinese Taipei, and countries that no longer exist, including the Soviet Union and Yugoslavia. 
+
+summer_gold
+
 ```
 
 ## Including Plots
 
 You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+#weight in kg
+golden_girls <- summer_gold %>% 
+  filter(sex == "F") %>% 
+  drop_na(height, weight) 
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+golden_girls %>% 
+  ggplot(aes(x = age, y = height, color = sport)) +
+  geom_point() 
+```
+
+
