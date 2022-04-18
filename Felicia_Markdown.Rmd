@@ -86,21 +86,75 @@ summer_gold
 
 ```
 
+All medals, not just gold dataset
+```{r}
+summer_olympics <- olympics %>% 
+  filter(season == "Summer") %>% 
+  drop_na(medal)
+```
 ## Including Plots
 
 You can also embed plots, for example:
 
 ```{r}
 #weight in kg
-golden_girls <- summer_gold %>% 
+# Athletics = track and field
+# Hockey = Field Hockey
+#Leaving out figure skating because  1920s Olympics, one gold winner
+
+golden_girls <- summer_olympics %>% 
   filter(sex == "F") %>% 
   drop_na(height, weight) 
 ```
 
 ```{r}
 golden_girls %>% 
-  ggplot(aes(x = age, y = height, color = sport)) +
+  ggplot(aes(x = weight, y = height, color = sport)) +
   geom_point() 
 ```
 
+```{r}
+equip_gg <- golden_girls %>% 
+  filter(sport == c("Badminton", "Cycling", "Equestrianism", "Golf",  "Hockey", "Shooting", "Softball", "Table Tennis", "Tennis", "Rhythmic Gymnastics", "Weightlifting"))
+equip_gg
 
+armor_gg <- golden_girls %>% 
+  filter(sport == c("Boxing", "Judo", "Fencing", "Football", "Taekwondo", "Rugby Sevens"))
+armor_gg
+
+hydro_gg <- golden_girls %>% 
+  filter(sport == c("Canoeing", "Diving", "Water Polo", "Rowing", "Swimming", "Synchronized Swimming", "Sailing"))
+hydro_gg
+
+solo_gg <- golden_girls %>%
+  filter(sport == c("Athletics", "Basketball", "Beach Volleyball", "Gymnastics", "Handball", "Trampolining", "Triathalon", "Volleyball", "Wrestling" ))
+solo_gg
+```
+
+Some ideas I have: 
+- Using patchwork
+- Creating a gif that shows by sport one by one separately
+
+```{r}
+
+fig1 <- equip_gg %>% 
+  ggplot(aes(x = weight, y = height, color = sport)) +
+  geom_point() 
+
+fig2 <- armor_gg %>% 
+  ggplot(aes(x = weight, y = height, color = sport)) +
+  geom_point() 
+
+fig3 <- hydro_gg %>% 
+  ggplot(aes(x = weight, y = height, color = sport)) +
+  geom_point() 
+
+fig4 <- solo_gg %>% 
+  ggplot(aes(x = weight, y = height, color = sport)) +
+  geom_point() 
+
+fig1 + (fig3/fig4) + 
+  plot_annotation(title = "Olympic Medal Winning Women",
+                  subtitle = "Trends in height and weight depending on sport")
+
+```
