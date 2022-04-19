@@ -92,7 +92,7 @@ summer_olympics <- olympics %>%
   filter(season == "Summer") %>% 
   drop_na(medal) %>% 
    mutate(countryName = countrycode(noc, "genc3c", "country.name")) %>% 
-   mutate(countryName = ifelse(countryName == "USA", "United States", countryName)) %>% 
+   mutate(countryName = ifelse(countryName == "United States", "USA", countryName)) %>% 
    mutate(countryName = ifelse(noc == "ALG", "Algeria", countryName)) %>% 
    mutate(countryName = ifelse(noc == "BAH", "Bahamas", countryName)) %>%
    mutate(countryName = ifelse(noc == "BUL", "Bulgaria", countryName)) %>%
@@ -165,7 +165,7 @@ Some ideas I have:
 - Using patchwork
 - Creating a gif that shows by sport one by one separately
 
-```{r, fig.height=5, fig.alt= "Here is the description yippeeeee!" }
+```{r, fig.height=7, fig.alt= "Here is the description yippeeeee!" }
 
 fig1 <- equip_gg %>% 
   ggplot(aes(x = weight, y = height, color = sport)) +
