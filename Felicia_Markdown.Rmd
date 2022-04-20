@@ -268,6 +268,43 @@ medal_prop <- summer_all %>%
   arrange(desc(total_medals))
 
 medal_prop
+
+
+
+summer_all %>% 
+  group_by(countryName) %>% 
+  mutate(medal, n = n()) %>% 
+  filter(any(!is.na(medal))) %>% 
+  mutate(medal = ifelse(is.na(medal), "No Medal", medal)) %>% 
+  pivot_wider(
+    names_from = medal,
+    values_from = n,
+    values_fill = 0
+  ) %>% 
+  
+  mutate(
+    total_medals = Gold + Silver + Bronze,
+    total_events = total_medals + `No Medal`,
+    p_medal = total_medals / total_events
+  ) %>% 
+  arrange(desc(total_medals))
+
+medal_prop
+```
+
+
+```{r}
+
+medal_colors <- c(
+  Gold = "#d5a500",
+  Silver = "#b7b7b7",
+  Bronze = "#a17419"
+)
+
+
+
+
+
 ```
 
 
@@ -281,8 +318,8 @@ medal_prop %>%
   scale_fill_gradient(low=cm.colors(20)[1], high=cm.colors(20)[20])+
   expand_limits(x = world$long, y = world$lat) +
   theme_map()
-```
 
+```
 
 
 
