@@ -41,16 +41,18 @@ olympics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/t
 
 world <- map_data("world")
 
+medal_colors <- c(
+  Gold = "#d5a500",
+  Silver = "#b7b7b7",
+  Bronze = "#a17419")
 
 ```
 
 ## Filtered Data Sets
 
 ```{r}
-summer_gold <- olympics %>% 
+summer_olympics <- olympics %>% 
   filter(season == "Summer") %>% 
-  drop_na(medal) %>% 
-  filter(medal == "Gold") %>% 
    mutate(countryName = countrycode(noc, "genc3c", "country.name")) %>% 
    mutate(countryName = ifelse(countryName == "USA", "United States", countryName)) %>% 
    mutate(countryName = ifelse(noc == "ALG", "Algeria", countryName)) %>% 
@@ -81,17 +83,47 @@ summer_gold <- olympics %>%
    mutate(countryName = ifelse(noc == "VIE", "Vietnam", countryName)) %>%
    mutate(countryName = ifelse(noc == "ZIM", "Zimbabwe", countryName)) %>% 
 drop_na(countryName)
-  #taking time to find the codes that weren't matched and double-checking to see if the countries exist --> add to data set
 
 # Footnote or mention in part of the project the choice to leave out territories not fully recognized, such as Kosovo and Chinese Taipei, and countries that no longer exist, including the Soviet Union and Yugoslavia. 
 
-summer_gold
-  
+
+summer_gold <- summer_olympics %>% 
+  drop_na(medal) %>% 
+  filter(medal == "Gold") 
+
+summer_medals <- summer_olympics %>% 
+  drop_na(medal)
+
+medal_prop <- summer_olympics %>% 
+  count(countryName, medal) %>% 
+  group_by(countryName) %>% 
+  filter(any(!is.na(medal))) %>% 
+  mutate(medal = ifelse(is.na(medal), "No Medal", medal)) %>% 
+  pivot_wider(
+    names_from = medal,
+    values_from = n,
+    values_fill = 0) %>% 
+  mutate(
+    total_medals = Gold + Silver + Bronze,
+    total_events = total_medals + `No Medal`,
+    p_medal = total_medals / total_events) %>% 
+  arrange(desc(total_medals))
+
+
 
 
 ```
 
+Female-only, medal-winning data:
 
+```{r}
+
+golden_girls <- summer_gold %>% 
+  filter(sex == "F") %>% 
+  drop_na(height, weight) 
+
+
+```
 Instructions that might be useful to remember:
 
 * **NEW!!** With animated graphs, add `eval=FALSE` to the code chunk that creates the animation and saves it using `anim_save()`. Add another code chunk to reread the gif back into the file. See the [tutorial](https://animation-and-interactivity-in-r.netlify.app/) for help. 
@@ -109,3 +141,92 @@ summer_gold %>%
   arrange(desc(n)) #results in a medal count in descending order
 
 ```
+
+
+##Felicia's Graphs
+
+1. Overall Medals won
+
+```{r, fig.height=5, fig.alt= "words words words Reflects women not being allowed in competitions for a good portion of all Olympic Games."}
+summer_olympics %>%
+  group_by(sex, sport) %>% 
+  count(medal) %>% 
+  filter(!(sport %in% c("Aeronautics", "Art Competitions", "Jeu De Paume", "Roque", "Alpinism", "Basque Pelota", "Croquet", "Racquets", "Figure Skating", "Ice Hockey", "Cricket", "Polo", "Trampolining", "Tug-Of-War", "Motorboating"))) %>% 
+  ggplot(aes(x = n, y = reorder(sport, n), fill = sex)) + 
+  geom_col() +
+  labs(y = "",
+        title = "Overall medals won by men and women Olympians")
+
+
+```
+
+
+
+
+2. Women's heights and weights
+
+```{r}
+#weight in kg
+# Athletics = track and field
+# Hockey = Field Hockey
+#Leaving out figure skating because  1920s Olympics, one gold winner
+
+golden_girls <- summer_olympics %>% 
+  filter(sex == "F") %>% 
+  drop_na(height, weight) 
+```
+
+
+```{r}
+golden_girls %>% 
+  ggplot(aes(x = weight, y = height, color = sport)) +
+  geom_point() 
+```
+
+
+
+
+
+```{r, fig.height=7, fig.alt= "Here is the description yippeeeee!" }
+equip_gg <- golden_girls %>% 
+  filter(sport == c("Badminton", "Cycling", "Equestrianism", "Golf",  "Hockey", "Shooting", "Softball", "Table Tennis", "Tennis", "Rhythmic Gymnastics", "Weightlifting"))
+equip_gg
+
+armor_gg <- golden_girls %>% 
+  filter(sport == c("Boxing", "Judo", "Fencing", "Football", "Taekwondo", "Rugby Sevens"))
+armor_gg
+
+hydro_gg <- golden_girls %>% 
+  filter(sport == c("Canoeing", "Diving", "Water Polo", "Rowing", "Swimming", "Synchronized Swimming", "Sailing"))
+hydro_gg
+
+solo_gg <- golden_girls %>%
+  filter(sport == c("Athletics", "Basketball", "Beach Volleyball", "Gymnastics", "Handball", "Trampolining", "Triathalon", "Volleyball", "Wrestling" ))
+solo_gg
+
+fig1 + fig2 + fig3 + fig4 + 
+  plot_annotation(title = "Olympic Medal Winning Women",
+                  subtitle = "Trends in height and weight for female athletes depending on sport")
+```
+
+
+
+3. World map showing the proportion of Olympic medal wins to participation in events
+
+```{r}
+
+medal_prop %>% 
+  ggplot() +
+  geom_map(map = world, 
+           aes(map_id = countryName,
+               fill = p_medal)) +
+  scale_fill_gradient(low=cm.colors(20)[1], high=cm.colors(20)[20])+
+  expand_limits(x = world$long, y = world$lat) +
+  theme_map()
+
+ 
+```
+
+
+
+
