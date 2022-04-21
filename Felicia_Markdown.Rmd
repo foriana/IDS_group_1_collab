@@ -249,7 +249,7 @@ summer_olympics %>%
 How often do certain countries gain medals proportionately to the events they participate in (total medals divided by total events)?
 
 ```{r}
-medal_prop <- summer_all %>% 
+medal_prop <- summer_olympics %>% 
   count(countryName, medal) %>% 
   group_by(countryName) %>% 
   filter(any(!is.na(medal))) %>% 
