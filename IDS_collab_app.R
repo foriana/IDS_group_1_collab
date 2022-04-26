@@ -1,3 +1,5 @@
+#Required packages -------------------------------------------------------
+
 library(shiny)
 library(shinythemes) 
 library(RColorBrewer)
@@ -10,6 +12,7 @@ library(tidyr)
 library(dplyr)
 library(countrycode)
 
+#Load data ---------------------------------------------------------------
 olympics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-07-27/olympics.csv')
 
 summer_olympics <- olympics %>% 
@@ -48,14 +51,17 @@ summer_olympics <- olympics %>%
   count(countryName, medal) %>% 
   group_by(countryName) 
 
+#Color palette ----------------------------------------------------------
 medal_colors <- c(
   Gold = "#d5a500",
   Silver = "#b7b7b7",
   Bronze = "#a17419")
 
 
+#Create user interface --------------------------------------------------
 
 ui <- fluidPage("Olympic Medal Results",
+                
                # checkboxGroupInput(inputId = "medal",
                                #    label = NULL,
                                  #  choices = list("Gold" = `Gold`, "Silver" = `Silver`, "Bronze" = `Bronze`),
