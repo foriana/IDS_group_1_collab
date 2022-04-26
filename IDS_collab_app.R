@@ -1,13 +1,13 @@
 #Required packages -------------------------------------------------------
 
 library(shiny)
-library(shinythemes) 
+#library(shinythemes) 
 library(RColorBrewer)
-library(DT)   
+#library(DT)   
 library(scales)
 library(ggridges)
 library(gridExtra)
-library(extrafont)
+#library(extrafont)
 library(tidyr)
 library(dplyr)
 library(countrycode)
@@ -60,17 +60,25 @@ medal_colors <- c(
 
 #Create user interface --------------------------------------------------
 
-ui <- fluidPage("Olympic Medal Results",
+ui <- fluidPage(
+  sidebarLayout( sidebarPanel( 
+    
+    selectizeInput(inputId  = "countryName",
+                                               label = "Select Country -- Up to Three",
+                                               choices =  sort(unique(summer_olympics$countryName))),
+    checkboxGroupInput(inputId = "medal",
+       label = "Type of Medal",
+     choices = c("Gold", "Silver", "Bronze"),
+    selected = c("Gold", "Silver", "Bronze"))
+    ),
+                 mainPanel() )
+
                 
-               # checkboxGroupInput(inputId = "medal",
-                               #    label = NULL,
-                                 #  choices = list("Gold" = `Gold`, "Silver" = `Silver`, "Bronze" = `Bronze`),
-                                  # selected = c("Gold", "Silver", "Bronze")),
-                selectizeInput(inputId  = "countryName",
-                               label = "Select Country -- Up to Three",
-                               choices =  sort(unique(summer_olympics$countryName))))
+             
+              )
                               
 
 server <- function(input, output) {}
 shinyApp(ui = ui, server = server)
 
+                                
