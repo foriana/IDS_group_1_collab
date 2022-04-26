@@ -1,5 +1,5 @@
 ---
-title: "Olympic Medals"
+title: "Summer Olympic Medals"
 author: "Gabriela Diaz, Felicia Peterson, & Gabby Valle"
 date: "4/12/2022"
 output: html_document
@@ -34,7 +34,12 @@ theme_set(theme_minimal())
 
 ```
 
+Every four years (or two), the world holds its breath as individual humans represent whole countries through their mastery of a sport. We data scientists have analyzed the Summer Olympics from the year 1896 to 2016--yes, 120 years of the top athletes competing for the glory, and, perhaps more importantly, the gold. 
+
+
 ## Original Data
+
+This data hails from Kaggle from the games in Athens 1896 to Rio 2016. Until 1992, the Winter and Summer Games co-incided in the same year, which results in odd data points like a Figure Skating victory slipping into the Summer Olympics data sets. Other aspects of the history of the Olympics include the existence and end to whole nations as the years progress. Examples include East and West Germany and the Soviet Union--as well as unrecognized independent territories such as Kosovo and Taiwan. Our team's methodology to eliminate our own biases was to keep the data points that reflect 2016's Olympic Games for sports measured and the countries recognized are universally agreed upon by the international community. 
 
 ```{r}
 olympics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-07-27/olympics.csv')
