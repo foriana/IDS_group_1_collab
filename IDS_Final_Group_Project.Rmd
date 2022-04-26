@@ -2,7 +2,12 @@
 title: "Analyzing Trends in Summer Olympic Games Medals"
 author: "Gabriela Diaz, Felicia Peterson, & Gabby Valle"
 date: "4/12/2022"
-output: html_document
+output: 
+html_document:
+    toc: TRUE
+    toc_float: TRUE
+    df_print: paged
+    code_download: true
 ---
 
 ```{r}
@@ -59,19 +64,20 @@ medal_colors <- c(
 
 ```
 
-## Filtered Data Sets
+Filtered Data Sets
 
 ```{r}
 summer_olympics <- olympics %>% 
   filter(season == "Summer") %>% 
    mutate(countryName = countrycode(noc, "genc3c", "country.name")) %>% 
-   mutate(countryName = ifelse(countryName == "USA", "United States", countryName)) %>% 
+   mutate(countryName = ifelse(countryName == "United States", "USA", countryName)) %>% 
    mutate(countryName = ifelse(noc == "ALG", "Algeria", countryName)) %>% 
    mutate(countryName = ifelse(noc == "BAH", "Bahamas", countryName)) %>%
    mutate(countryName = ifelse(noc == "BUL", "Bulgaria", countryName)) %>%
    mutate(countryName = ifelse(noc == "CHI", "Chile", countryName)) %>%
    mutate(countryName = ifelse(noc == "CRC", "Costa Rica", countryName)) %>%
    mutate(countryName = ifelse(noc == "CRO", "Croatia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CZA", "Czech Republic", countryName)) %>%
    mutate(countryName = ifelse(noc == "DEN", "Denmark", countryName)) %>%
    mutate(countryName = ifelse(noc == "FIJ", "Fiji", countryName)) %>%
    mutate(countryName = ifelse(noc == "GER", "Germany", countryName)) %>%
@@ -92,8 +98,8 @@ summer_olympics <- olympics %>%
    mutate(countryName = ifelse(noc == "UAE", "United Arab Emirates", countryName)) %>%
    mutate(countryName = ifelse(noc == "URU", "Uruguay", countryName)) %>%
    mutate(countryName = ifelse(noc == "VIE", "Vietnam", countryName)) %>%
-   mutate(countryName = ifelse(noc == "ZIM", "Zimbabwe", countryName)) %>% 
-drop_na(countryName)
+   mutate(countryName = ifelse(noc == "ZIM", "Zimbabwe", countryName)) 
+
 
 # Footnote or mention in part of the project the choice to leave out territories not fully recognized, such as Kosovo and Chinese Taipei, and countries that no longer exist, including the Soviet Union and Yugoslavia. 
 
@@ -144,9 +150,9 @@ Instructions that might be useful to remember:
 
 
 
-##Felicia's Graphs
+## Felicia's Graphs
 
-1. Overall medals (gold, silver, and bronze) won by Olympians
+## __1. Overall medals (gold, silver, and bronze) won by Olympians__
 
 ```{r, fig.height=5, fig.alt= "This bar graph shows the descending order of overall Olympic medals won based on gender. This feflects women not being allowed in competitions for a good portion of all Olympic Games. This graph is also skews heavily towards sports that naturally have more medals to win due to different events under the same sport category."}
 summer_olympics %>%
@@ -161,11 +167,12 @@ summer_olympics %>%
 
 
 ```
+
 In general, the net amount of medals won is favored by sports within which have multiple opportunities to medal. One example includes Athletics, also known as "Track and Field," having multiple races, team relays, and field events for athletes to earn medals in. Other result by contrasting by gender shows both the lack of female inclusion for a significant period of time, reflecting gender dynamics over the decades, as well as sports that are more dominated by one gender. Synchronized Swimming, Rhythmic Gymnastics appear to only have female champions, while Wrestling, the Modern Pentathlon, Rugby, and Lacrosse appear to have majority male winners.  
 
 
 
-2. Olympic medal winning women's heights and weights
+## __2. Olympic medal winning women's heights and weights__
 
 ```{r}
 #weight in kg
@@ -173,19 +180,20 @@ In general, the net amount of medals won is favored by sports within which have 
 # Hockey = Field Hockey
 #Leaving out figure skating because  1920s Olympics, one gold winner
 
-golden_girls <- summer_olympics %>% 
+golden_girls <- summer_medals %>% 
   filter(sex == "F") %>% 
   drop_na(height, weight) 
 golden_girls
 ```
 
 
-```{r, fig.height = 3, fig.width = 5, fig.alt= "This graph shows the heights and weights of women who competed in the Olympics and won a medal."}
+```{r, fig.height = 5, fig.width = 7, fig.alt= "This graph shows the heights and weights of women who competed in the Olympics and won a medal."}
 golden_girls %>% 
   ggplot(aes(x = weight, y = height, color = sport)) +
   geom_point() + 
-  labs(y = "Height (cm)",
-       x = "Weight (kg)")
+  labs(title = "Body Types of Olympic Medal Winning Female Athletes",
+    y = "Height (cm)",
+       x = "Weight (kg)") 
 ```
 
 Above is a graph that shows all the female athletes in one graph, showing a wide range of heights and weights of Olympians. However, due to the amount of sports, the graph itself is very noisy. To better understand the trends, the same data is compiled into four different categories. 
@@ -220,22 +228,40 @@ solo_gg
 
 ```
 
-```{r, fig.height= 7 fig.alt= "This is a series of graphs that filter out sports into four distinct categories: "Holding an object," "Wearing protective gear," "In water," and "Just self." "}
+```{r, fig.height= 7, fig.width = 7, fig.alt= "This is a series of graphs that filter out sports into four distinct categories."}
 fig1 <- equip_gg %>% 
   ggplot(aes(x = weight, y = height, color = sport)) +
-  geom_point() 
+  geom_point() +
+  theme(legend.title = element_blank(),
+        legend.text = element_text(size = 7)) +
+  labs(x = "",
+       y = "")
 
 fig2 <- armor_gg %>% 
   ggplot(aes(x = weight, y = height, color = sport)) +
-  geom_point() 
+  geom_point() +
+  theme(legend.title = element_blank(),
+        legend.text = element_text(size = 7)) +
+  labs(x = "",
+       y = "")
+ 
 
 fig3 <- hydro_gg %>% 
   ggplot(aes(x = weight, y = height, color = sport)) +
-  geom_point() 
+  geom_point() +
+  theme(legend.title = element_blank(),
+        legend.text = element_text(size = 7)) + 
+   labs(x = "Weight (cm)",
+       y = "Height (kg)")
 
 fig4 <- solo_gg %>% 
-  ggplot(aes(x = weight, y = height, color = sport)) +
-  geom_point() 
+  ggplot(aes(x = weight, y = height, color = sport),
+         legend.text = element_text(size = 7)) +
+  geom_point() +
+  theme(legend.title = element_blank(),
+        legend.text = element_text(size = 7)) + 
+  labs(x = "Height (cm)",
+       y = "Weight (kg)")
 
 
 fig1 + fig2 + fig3 + fig4 + 
@@ -244,21 +270,27 @@ fig1 + fig2 + fig3 + fig4 +
 ```
 
 
-3. World map showing the proportion of Olympic medal wins to participation in events
+## __3. World map showing the proportion of Olympic medal wins to participation in events__
 
-```{r, fig.alt="This world map shows the proportion of Olympic medal wins to participation in events per country."}
+```{r, fig.width = 7, fig.alt="This world map shows the proportion of Olympic medal wins to participation in events per country. The United States has the largest proportion of medal earnings to individual participation in the Olympics, followed by Russia, Germany, and Finland."}
 
 medal_prop %>% 
+  mutate(countryName = ifelse(countryName == "United States", "USA", countryName)) %>% 
   ggplot() +
   geom_map(map = world, 
            aes(map_id = countryName,
                fill = p_medal)) +
   scale_fill_gradient(low=cm.colors(20)[1], high=cm.colors(20)[20])+
+  #scale_colour_manual(values = countryName, na.value = "#34521") + 
   expand_limits(x = world$long, y = world$lat) +
-  theme_map()
-
+  theme_map() +
+  labs(fill = "Proportion of Medals") +
+  theme(legend.key = element_rect(fill = "transparent"))
  
 ```
+
+The map above adds depth to our understanding of Olympic medal winning countries. Previous maps show an extreme domination in the Olympics by the United States of America, but taking the wins in relation to total participation, other countries emerge as prolific medal winners as well. Russia, Finland, Germany, and China also tend to win more often when their athletes are competing. The United States still is at the highest level of medal wins. One other aspect to note are all the medals won by countries that no longer exist today, like the USSR and East and West Germany. This graph tells a more accurate story of where champions are from, but cannot wholly depict the wins every achieved in the world. 
+
 
 
 
