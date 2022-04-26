@@ -78,7 +78,16 @@ ui <- fluidPage(
               )
                               
 
-server <- function(input, output) {}
+server <- function(input, output) { output$timeplot <- renderPlot({
+  summer_all %>% 
+    filter(countryName == input$countryName, 
+           medal== input$medal) %>% 
+    ggplot() +
+    geom_line(aes(x = year, y = n)) +
+    scale_x_continuous(limits = input$years) +
+    theme_minimal()
+})
+}
 shinyApp(ui = ui, server = server)
 
                                 
