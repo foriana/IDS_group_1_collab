@@ -161,6 +161,7 @@ summer_olympics %>%
 
 
 ```
+
 In general, the net amount of medals won is favored by sports within which have multiple opportunities to medal. One example includes Athletics, also known as "Track and Field," having multiple races, team relays, and field events for athletes to earn medals in. Other result by contrasting by gender shows both the lack of female inclusion for a significant period of time, reflecting gender dynamics over the decades, as well as sports that are more dominated by one gender. Synchronized Swimming, Rhythmic Gymnastics appear to only have female champions, while Wrestling, the Modern Pentathlon, Rugby, and Lacrosse appear to have majority male winners.  
 
 
@@ -173,19 +174,20 @@ In general, the net amount of medals won is favored by sports within which have 
 # Hockey = Field Hockey
 #Leaving out figure skating because  1920s Olympics, one gold winner
 
-golden_girls <- summer_olympics %>% 
+golden_girls <- summer_medals %>% 
   filter(sex == "F") %>% 
   drop_na(height, weight) 
 golden_girls
 ```
 
 
-```{r, fig.height = 3, fig.width = 5, fig.alt= "This graph shows the heights and weights of women who competed in the Olympics and won a medal."}
+```{r, fig.height = 5, fig.width = 7, fig.alt= "This graph shows the heights and weights of women who competed in the Olympics and won a medal."}
 golden_girls %>% 
   ggplot(aes(x = weight, y = height, color = sport)) +
   geom_point() + 
-  labs(y = "Height (cm)",
-       x = "Weight (kg)")
+  labs(title = "Bodytypes of Olympic Medal Winning Female Athletes",
+    y = "Height (cm)",
+       x = "Weight (kg)") 
 ```
 
 Above is a graph that shows all the female athletes in one graph, showing a wide range of heights and weights of Olympians. However, due to the amount of sports, the graph itself is very noisy. To better understand the trends, the same data is compiled into four different categories. 
@@ -220,22 +222,40 @@ solo_gg
 
 ```
 
-```{r, fig.height= 7 fig.alt= "This is a series of graphs that filter out sports into four distinct categories: "Holding an object," "Wearing protective gear," "In water," and "Just self." "}
+```{r, fig.height= 7, fig.width = 7, fig.alt= "This is a series of graphs that filter out sports into four distinct categories."}
 fig1 <- equip_gg %>% 
   ggplot(aes(x = weight, y = height, color = sport)) +
-  geom_point() 
+  geom_point() +
+  theme(legend.title = element_blank(),
+        legend.text = element_text(size = 7)) +
+  labs(x = "",
+       y = "")
 
 fig2 <- armor_gg %>% 
   ggplot(aes(x = weight, y = height, color = sport)) +
-  geom_point() 
+  geom_point() +
+  theme(legend.title = element_blank(),
+        legend.text = element_text(size = 7)) +
+  labs(x = "",
+       y = "")
+ 
 
 fig3 <- hydro_gg %>% 
   ggplot(aes(x = weight, y = height, color = sport)) +
-  geom_point() 
+  geom_point() +
+  theme(legend.title = element_blank(),
+        legend.text = element_text(size = 7)) + 
+   labs(x = "Weight (cm)",
+       y = "Height (kg)")
 
 fig4 <- solo_gg %>% 
-  ggplot(aes(x = weight, y = height, color = sport)) +
-  geom_point() 
+  ggplot(aes(x = weight, y = height, color = sport),
+         legend.text = element_text(size = 7)) +
+  geom_point() +
+  theme(legend.title = element_blank(),
+        legend.text = element_text(size = 7)) + 
+  labs(x = "Height (cm)",
+       y = "Weight (kg)")
 
 
 fig1 + fig2 + fig3 + fig4 + 
