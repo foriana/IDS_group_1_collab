@@ -59,7 +59,7 @@ medal_colors <- c(
 
 ```
 
-## Filtered Data Sets
+Filtered Data Sets
 
 ```{r}
 summer_olympics <- olympics %>% 
@@ -93,8 +93,8 @@ summer_olympics <- olympics %>%
    mutate(countryName = ifelse(noc == "UAE", "United Arab Emirates", countryName)) %>%
    mutate(countryName = ifelse(noc == "URU", "Uruguay", countryName)) %>%
    mutate(countryName = ifelse(noc == "VIE", "Vietnam", countryName)) %>%
-   mutate(countryName = ifelse(noc == "ZIM", "Zimbabwe", countryName)) %>% 
-drop_na(countryName)
+   mutate(countryName = ifelse(noc == "ZIM", "Zimbabwe", countryName)) 
+
 
 # Footnote or mention in part of the project the choice to leave out territories not fully recognized, such as Kosovo and Chinese Taipei, and countries that no longer exist, including the Soviet Union and Yugoslavia. 
 
@@ -145,9 +145,9 @@ Instructions that might be useful to remember:
 
 
 
-##Felicia's Graphs
+## Felicia's Graphs
 
-1. Overall medals (gold, silver, and bronze) won by Olympians
+## __1. Overall medals (gold, silver, and bronze) won by Olympians__
 
 ```{r, fig.height=5, fig.alt= "This bar graph shows the descending order of overall Olympic medals won based on gender. This feflects women not being allowed in competitions for a good portion of all Olympic Games. This graph is also skews heavily towards sports that naturally have more medals to win due to different events under the same sport category."}
 summer_olympics %>%
@@ -167,7 +167,7 @@ In general, the net amount of medals won is favored by sports within which have 
 
 
 
-2. Olympic medal winning women's heights and weights
+## __2. Olympic medal winning women's heights and weights__
 
 ```{r}
 #weight in kg
@@ -186,7 +186,7 @@ golden_girls
 golden_girls %>% 
   ggplot(aes(x = weight, y = height, color = sport)) +
   geom_point() + 
-  labs(title = "Bodytypes of Olympic Medal Winning Female Athletes",
+  labs(title = "Body Types of Olympic Medal Winning Female Athletes",
     y = "Height (cm)",
        x = "Weight (kg)") 
 ```
@@ -265,7 +265,7 @@ fig1 + fig2 + fig3 + fig4 +
 ```
 
 
-3. World map showing the proportion of Olympic medal wins to participation in events
+## __3. World map showing the proportion of Olympic medal wins to participation in events__
 
 ```{r, fig.width = 7, fig.alt="This world map shows the proportion of Olympic medal wins to participation in events per country. The United States has the largest proportion of medal earnings to individual participation in the Olympics, followed by Russia, Germany, and Finland."}
 
@@ -276,6 +276,7 @@ medal_prop %>%
            aes(map_id = countryName,
                fill = p_medal)) +
   scale_fill_gradient(low=cm.colors(20)[1], high=cm.colors(20)[20])+
+  #scale_colour_manual(values = countryName, na.value = "#34521") + 
   expand_limits(x = world$long, y = world$lat) +
   theme_map() +
   labs(fill = "Proportion of Medals") +
@@ -284,5 +285,8 @@ medal_prop %>%
 ```
 
 The map above adds depth to our understanding of Olympic medal winning countries. Previous maps show an extreme domination in the Olympics by the United States of America, but taking the wins in relation to total participation, other countries emerge as prolific medal winners as well. Russia, Finland, Germany, and China also tend to win more often when their athletes are competing. The United States still is at the highest level of medal wins. One other aspect to note are all the medals won by countries that no longer exist today, like the USSR and East and West Germany. This graph tells a more accurate story of where champions are from, but cannot wholly depict the wins every achieved in the world. 
+
+
+
 
 
