@@ -1,0 +1,193 @@
+---
+title: "rough draft"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries}
+library(tidyverse)     # for data cleaning and plotting
+library(lubridate)     # for date manipulation
+library(openintro)     # for the abbr2state() function
+library(maps)          # for map data
+library(ggmap)         # for mapping points on maps
+library(gplots)        # for col2hex() function
+library(RColorBrewer)  # for color palettes
+library(sf)            # for working with spatial data
+library(leaflet)       # for highly customizable mapping
+library(ggthemes)      
+library(plotly)        # for the ggplotly() - basic interactivity
+library(gganimate)     # for adding animation layers to ggplots
+library(gifski)        # for creating the gif (don't need to load this library every time,but need it installed)
+library(transformr)    # for "tweening" (gganimate)
+library(shiny)         # for creating interactive apps
+library(patchwork)     # for nicely combining ggplot2 graphs
+library(gt)            # for creating nice tables
+library(countrycode)
+theme_set(theme_minimal())
+library(geofacet)
+library(tidytext)
+```
+
+```{r}
+olympics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-07-27/olympics.csv')
+
+world <- map_data("world")
+
+
+```
+
+
+```{r}
+summer_gold <- olympics %>% 
+  filter(season == "Summer") %>% 
+  drop_na(medal) %>% 
+  filter(medal == "Gold") %>% 
+   mutate(countryName = countrycode(noc, "genc3c", "country.name")) %>% 
+   mutate(countryName = ifelse(countryName == "USA", "United States", countryName)) %>% 
+   mutate(countryName = ifelse(noc == "ALG", "Algeria", countryName)) %>% 
+   mutate(countryName = ifelse(noc == "BAH", "Bahamas", countryName)) %>%
+   mutate(countryName = ifelse(noc == "BUL", "Bulgaria", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CHI", "Chile", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CRC", "Costa Rica", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CRO", "Croatia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "DEN", "Denmark", countryName)) %>%
+   mutate(countryName = ifelse(noc == "FIJ", "Fiji", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GER", "Germany", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GRE", "Greece", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GRN", "Grenada", countryName)) %>%
+   mutate(countryName = ifelse(noc == "HAI", "Haiti", countryName)) %>%
+   mutate(countryName = ifelse(noc == "INA", "Indonesia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "IRI", "Iran", countryName)) %>%
+   mutate(countryName = ifelse(noc == "LAT", "Latvia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "MGL", "Mongolia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "NED", "Netherlands", countryName)) %>%
+   mutate(countryName = ifelse(noc == "NGR", "Nigeria", countryName)) %>%
+   mutate(countryName = ifelse(noc == "POR", "Portugal", countryName)) %>%
+   mutate(countryName = ifelse(noc == "PUR", "Puerto Rico", countryName)) %>%
+   mutate(countryName = ifelse(noc == "RSA", "South Africa", countryName)) %>%
+   mutate(countryName = ifelse(noc == "SLO", "Slovenia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "SUI", "Switzerland", countryName)) %>%
+   mutate(countryName = ifelse(noc == "UAE", "United Arab Emirates", countryName)) %>%
+   mutate(countryName = ifelse(noc == "URU", "Uruguay", countryName)) %>%
+   mutate(countryName = ifelse(noc == "VIE", "Vietnam", countryName)) %>%
+   mutate(countryName = ifelse(noc == "ZIM", "Zimbabwe", countryName)) %>% 
+drop_na(countryName)
+  #taking time to find the codes that weren't matched and double-checking to see if the countries exist --> add to data set
+
+# Footnote or mention in part of the project the choice to leave out territories not fully recognized, such as Kosovo and Chinese Taipei, and countries that no longer exist, including the Soviet Union and Yugoslavia. 
+
+summer_gold
+  
+
+
+```
+```{r}
+countriesone<-summer_gold %>%
+  group_by(countryName) %>% 
+  count(medal) %>% 
+  arrange(desc(n)) #results in a medal count in descending order
+```
+
+Separate and compare each event and which countries earn the most gold
+- bar graph of all the countries that win gold
+- color by event 
+```{r, fig.height=5}
+summer_gold %>% 
+  group_by(countryName) %>%
+  count() %>% 
+  ggplot(aes(x=n, y=reorder(countryName,n)))+
+  geom_col()+
+  labs(title="Number of gold medals earned per country")
+
+``` 
+
+```{r, fig.height=9, fig.width=10}
+summer_gold%>% 
+  group_by(countryName, sport) %>% 
+  count() %>% 
+  filter(n>20) %>% 
+  ungroup %>% 
+  mutate(sport2=reorder_within(sport,n,countryName)) %>% 
+  ggplot(aes(x=n, y=sport2, fill=sport))+
+  geom_col()+
+  facet_wrap(vars(fct_reorder(countryName,n,sum,.desc = TRUE)),scales = "free_y")+
+  scale_y_reordered()+
+  labs(title="Countries that have won more than 20 gold medals")
+```
+
+
+Line graph
+
+```{r}
+summer_all <- olympics %>% 
+  filter(season == "Summer") %>% 
+   mutate(countryName = countrycode(noc, "genc3c", "country.name")) %>% 
+   mutate(countryName = ifelse(countryName == "United States", "USA", countryName)) %>% 
+   mutate(countryName = ifelse(noc == "ALG", "Algeria", countryName)) %>% 
+   mutate(countryName = ifelse(noc == "BAH", "Bahamas", countryName)) %>%
+   mutate(countryName = ifelse(noc == "BUL", "Bulgaria", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CHI", "Chile", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CRC", "Costa Rica", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CRO", "Croatia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "DEN", "Denmark", countryName)) %>%
+   mutate(countryName = ifelse(noc == "FIJ", "Fiji", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GER", "Germany", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GRE", "Greece", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GRN", "Grenada", countryName)) %>%
+   mutate(countryName = ifelse(noc == "HAI", "Haiti", countryName)) %>%
+   mutate(countryName = ifelse(noc == "INA", "Indonesia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "IRI", "Iran", countryName)) %>%
+   mutate(countryName = ifelse(noc == "LAT", "Latvia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "MGL", "Mongolia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "NED", "Netherlands", countryName)) %>%
+   mutate(countryName = ifelse(noc == "NGR", "Nigeria", countryName)) %>%
+   mutate(countryName = ifelse(noc == "POR", "Portugal", countryName)) %>%
+   mutate(countryName = ifelse(noc == "PUR", "Puerto Rico", countryName)) %>%
+   mutate(countryName = ifelse(noc == "RSA", "South Africa", countryName)) %>%
+   mutate(countryName = ifelse(noc == "SLO", "Slovenia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "SUI", "Switzerland", countryName)) %>%
+   mutate(countryName = ifelse(noc == "UAE", "United Arab Emirates", countryName)) %>%
+   mutate(countryName = ifelse(noc == "URU", "Uruguay", countryName)) %>%
+   mutate(countryName = ifelse(noc == "VIE", "Vietnam", countryName)) %>%
+   mutate(countryName = ifelse(noc == "ZIM", "Zimbabwe", countryName)) %>% 
+drop_na(countryName)
+```
+
+
+
+```{r}
+prop_of_medals<-summer_all %>% 
+  drop_na(medal) %>% 
+  filter(countryName %in% c("USA", "United Kingdom", "Germany", "France", "Italy", "Australia", "Hungary", "Sweden", "Netherlands", "China")) %>% 
+  count(countryName, medal) %>% 
+  group_by(countryName) %>% 
+  mutate(proportion=n/sum(n)) 
+
+graph1<-prop_of_medals %>% 
+  ggplot(aes(y=countryName,x=proportion,fill=fct_relevel(medal,c("Bronze","Silver"))))+
+  scale_fill_manual(values=c("Bronze"="#a17419",Silver = "#b7b7b7", Gold = "#d5a500"))+
+  geom_col()+
+  labs(title="Distribution of medals won by the top 10 countries",y="",x="Proportion", fill=NULL)
+
+
+
+graph2<-prop_of_medals %>% 
+  ggplot(aes(y=fct_reorder(countryName,n,sum),x=n,fill=fct_relevel(medal,c("Bronze","Silver"))))+
+  scale_fill_manual(values=c("Bronze"="#a17419",Silver = "#b7b7b7", Gold = "#d5a500"))+
+  geom_col()+
+  theme(legend.title = element_blank())+
+  labs(title = "Number of medals won by the top 10 countries", y="", x="Count", fill=NULL)
+
+
+
+ggplotly(graph1)
+
+graph2
+```
+
+
+
+
