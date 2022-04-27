@@ -64,29 +64,28 @@ ui <- fluidPage(
   sidebarLayout( sidebarPanel( 
     
     selectizeInput(inputId  = "countryName",
-                                               label = "Select Country -- Up to Three",
-                                               choices =  sort(unique(summer_olympics$countryName))),
+                    label = "Select Country -- Up to Three",
+                    choices =  sort(unique(summer_olympics$countryName))),
     checkboxGroupInput(inputId = "medal",
        label = "Type of Medal",
      choices = c("Gold", "Silver", "Bronze"),
     selected = c("Gold", "Silver", "Bronze"))
     ),
-                 mainPanel() )
-
-                
-             
-              )
+                 mainPanel() ),
+  plotOutput(ouputId = "medalplot"))
                               
 
-server <- function(input, output) { output$timeplot <- renderPlot({
+server <- function(input, output) { 
+  output$medalplot <- renderPlot(
   summer_all %>% 
     filter(countryName == input$countryName, 
            medal== input$medal) %>% 
-    ggplot() +
-    geom_line(aes(x = year, y = n)) +
+    ggplot(aes(x = year, y = n)) +
+    geom_point() +
     scale_x_continuous(limits = input$years) +
-    theme_minimal()
-})
+    theme_minimal() + 
+    labs(title= "Olympic Medals (1896-2016)")
+)
 }
 shinyApp(ui = ui, server = server)
 
