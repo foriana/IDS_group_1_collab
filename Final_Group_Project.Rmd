@@ -36,6 +36,7 @@ library(patchwork)     # for nicely combining ggplot2 graphs
 library(gt)            # for creating nice tables
 library(countrycode)
 theme_set(theme_minimal())
+library(tidytext)
 
 ```
 
@@ -292,6 +293,140 @@ medal_prop %>%
 The map above adds depth to our understanding of Olympic medal winning countries. Previous maps show an extreme domination in the Olympics by the United States of America, but taking the wins in relation to total participation, other countries emerge as prolific medal winners as well. Russia, Finland, Germany, and China also tend to win more often when their athletes are competing. The United States still is at the highest level of medal wins. One other aspect to note are all the medals won by countries that no longer exist today, like the USSR and East and West Germany. This graph tells a more accurate story of where champions are from, but cannot wholly depict the wins every achieved in the world. 
 
 
+##Gabby's Graph
 
+```{r}
+gold_na <- olympics %>% 
+  filter(season == "Summer") %>% 
+  drop_na(medal) %>% 
+  filter(medal == "Gold") %>% 
+   mutate(countryName = countrycode(noc, "genc3c", "country.name")) %>% 
+   mutate(countryName = ifelse(countryName == "USA", "United States", countryName)) %>% 
+   mutate(countryName = ifelse(noc == "ALG", "Algeria", countryName)) %>% 
+   mutate(countryName = ifelse(noc == "BAH", "Bahamas", countryName)) %>%
+   mutate(countryName = ifelse(noc == "BUL", "Bulgaria", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CHI", "Chile", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CRC", "Costa Rica", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CRO", "Croatia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "DEN", "Denmark", countryName)) %>%
+   mutate(countryName = ifelse(noc == "FIJ", "Fiji", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GER", "Germany", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GRE", "Greece", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GRN", "Grenada", countryName)) %>%
+   mutate(countryName = ifelse(noc == "HAI", "Haiti", countryName)) %>%
+   mutate(countryName = ifelse(noc == "INA", "Indonesia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "IRI", "Iran", countryName)) %>%
+   mutate(countryName = ifelse(noc == "LAT", "Latvia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "MGL", "Mongolia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "NED", "Netherlands", countryName)) %>%
+   mutate(countryName = ifelse(noc == "NGR", "Nigeria", countryName)) %>%
+   mutate(countryName = ifelse(noc == "POR", "Portugal", countryName)) %>%
+   mutate(countryName = ifelse(noc == "PUR", "Puerto Rico", countryName)) %>%
+   mutate(countryName = ifelse(noc == "RSA", "South Africa", countryName)) %>%
+   mutate(countryName = ifelse(noc == "SLO", "Slovenia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "SUI", "Switzerland", countryName)) %>%
+   mutate(countryName = ifelse(noc == "UAE", "United Arab Emirates", countryName)) %>%
+   mutate(countryName = ifelse(noc == "URU", "Uruguay", countryName)) %>%
+   mutate(countryName = ifelse(noc == "VIE", "Vietnam", countryName)) %>%
+   mutate(countryName = ifelse(noc == "ZIM", "Zimbabwe", countryName)) %>% 
+drop_na(countryName)
+
+```
+##__4. 
+
+```{r, fig.height=5, fig.alt= "This graphs is a basic bar graph that shows us the number of gold medals earned by each participating country"}
+gold_na %>% 
+  group_by(countryName) %>%
+  count() %>% 
+  ggplot(aes(x=n, y=reorder(countryName,n)))+
+  geom_col()+
+  labs(x="", y= "", title="Number of gold medals earned per country")
+
+``` 
+The map above gives us a basic idea of how many gold medals are earned per country in the olympics. It's very obvious that the United States outnumber every other country by far with the second and third place countries having over 1000 less.As the numbers of gold medals won decrease, it becomes harder to distinguish the count. While this graph gives us an idea of what countries dominate the summer olympics, we have little details on what events they are winning them in.
+
+##__5.
+```{r, fig.height=9, fig.width=10, fig.alt="This is a series of graphs focusing on only countries that have won more than 20 gold medals. Each country has a graph displaying which events have won the most gold medals in descending order"}
+gold_na%>% 
+  group_by(countryName, sport) %>% 
+  count() %>% 
+  filter(n>20) %>% 
+  ungroup %>% 
+  mutate(sport2=reorder_within(sport,n,countryName)) %>% 
+  ggplot(aes(x=n, y=sport2, fill=sport))+
+  geom_col()+
+  facet_wrap(vars(fct_reorder(countryName,n,sum,.desc = TRUE)),scales = "free_y")+
+  scale_y_reordered()+
+  labs(title="Countries that have won more than 20 gold medals")
+```
+Above is a series of 34 graphs, each graph represents a country that has won more than 20 gold medals, and displays what events they have received the gold medals in. These graphs give us a detailed look on the events that are winning the most gold medals for each country that we are looking at. These graphs allow us to compare and contrast the countries since they are all in one place, and easy to distinguish the sports because not only did we color code them, we included the names of them on the y-axis to make it easier. It's interesting to see which countries have won gold medals in only one sport, and what sport that is. By the same token, these graphs are multipurposeful because they show us how many sports each country has won gold medals in, and the distribution of those medals as well.
+
+
+```{r}
+summer_all <- olympics %>% 
+  filter(season == "Summer") %>% 
+   mutate(countryName = countrycode(noc, "genc3c", "country.name")) %>% 
+   mutate(countryName = ifelse(countryName == "United States", "USA", countryName)) %>% 
+   mutate(countryName = ifelse(noc == "ALG", "Algeria", countryName)) %>% 
+   mutate(countryName = ifelse(noc == "BAH", "Bahamas", countryName)) %>%
+   mutate(countryName = ifelse(noc == "BUL", "Bulgaria", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CHI", "Chile", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CRC", "Costa Rica", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CRO", "Croatia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "DEN", "Denmark", countryName)) %>%
+   mutate(countryName = ifelse(noc == "FIJ", "Fiji", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GER", "Germany", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GRE", "Greece", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GRN", "Grenada", countryName)) %>%
+   mutate(countryName = ifelse(noc == "HAI", "Haiti", countryName)) %>%
+   mutate(countryName = ifelse(noc == "INA", "Indonesia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "IRI", "Iran", countryName)) %>%
+   mutate(countryName = ifelse(noc == "LAT", "Latvia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "MGL", "Mongolia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "NED", "Netherlands", countryName)) %>%
+   mutate(countryName = ifelse(noc == "NGR", "Nigeria", countryName)) %>%
+   mutate(countryName = ifelse(noc == "POR", "Portugal", countryName)) %>%
+   mutate(countryName = ifelse(noc == "PUR", "Puerto Rico", countryName)) %>%
+   mutate(countryName = ifelse(noc == "RSA", "South Africa", countryName)) %>%
+   mutate(countryName = ifelse(noc == "SLO", "Slovenia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "SUI", "Switzerland", countryName)) %>%
+   mutate(countryName = ifelse(noc == "UAE", "United Arab Emirates", countryName)) %>%
+   mutate(countryName = ifelse(noc == "URU", "Uruguay", countryName)) %>%
+   mutate(countryName = ifelse(noc == "VIE", "Vietnam", countryName)) %>%
+   mutate(countryName = ifelse(noc == "ZIM", "Zimbabwe", countryName)) %>% 
+drop_na(countryName)
+```
+
+##__6.
+```{r, fig.alt="Below is a pair of graphs. The first graph shows the proportion of medals won by the top 10 countries . The second graph shows the number of medals won by the top 10 countries"}
+prop_of_medals<-summer_all %>% 
+  drop_na(medal) %>% 
+  filter(countryName %in% c("USA", "United Kingdom", "Germany", "France", "Italy", "Australia", "Hungary", "Sweden", "Netherlands", "China")) %>% 
+  count(countryName, medal) %>% 
+  group_by(countryName) %>% 
+  mutate(proportion=n/sum(n)) 
+
+graph1<-prop_of_medals %>% 
+  ggplot(aes(y=countryName,x=proportion,fill=fct_relevel(medal,c("Bronze","Silver"))))+
+  scale_fill_manual(values=c("Bronze"="#a17419",Silver = "#b7b7b7", Gold = "#d5a500"))+
+  geom_col()+
+  labs(title="Distribution of medals won by the top 10 countries",y="",x="Proportion", fill=NULL)
+
+
+
+graph2<-prop_of_medals %>% 
+  ggplot(aes(y=fct_reorder(countryName,n,sum),x=n,fill=fct_relevel(medal,c("Bronze","Silver"))))+
+  scale_fill_manual(values=c("Bronze"="#a17419",Silver = "#b7b7b7", Gold = "#d5a500"))+
+  geom_col()+
+  theme(legend.title = element_blank())+
+  labs(title = "Number of medals won by the top 10 countries", y="", x="Count", fill=NULL)
+
+
+
+ggplotly(graph1)
+
+graph2
+```
+Above are two graphs dealing with a similar concept, looking at earned medals as a whole for the 10 highest winning countries. Previous graphs have only focused on gold medals, while these two graphs bring in all three medals, providing us with a bigger picture. The first graph, the plotly, displays the distribution of medals won by the top 10 countries. Since this graph is proportional we can compare the amount of medals earned by countries by the percentage distribution of each medal. The second graph, gives us similar information but doesn't show the number of medals as proportions. Here we just see how many of each type of medal each of our top countries have won, in descending order. We can still somewhat estimate the proportion of each medal for each country but here we see which countries have the most medals once again.
 
 
