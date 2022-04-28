@@ -10,7 +10,7 @@ html_document:
     code_download: true
 ---
 
-```{r}
+```{r, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, error=FALSE, message=FALSE, warning=FALSE)
 ```
 
