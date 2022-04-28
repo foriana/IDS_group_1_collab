@@ -52,7 +52,7 @@ summer_gold <- olympics %>%
   drop_na(medal) %>% 
   filter(medal == "Gold") %>% 
    mutate(countryName = countrycode(noc, "genc3c", "country.name")) %>% 
-   mutate(countryName = ifelse(countryName == "USA", "United States", countryName)) %>% 
+   mutate(countryName = ifelse(countryName == "United States", "USA", countryName)) 
    mutate(countryName = ifelse(noc == "ALG", "Algeria", countryName)) %>% 
    mutate(countryName = ifelse(noc == "BAH", "Bahamas", countryName)) %>%
    mutate(countryName = ifelse(noc == "BUL", "Bulgaria", countryName)) %>%
