@@ -1,4 +1,18 @@
 ---
+<<<<<<< HEAD
+title: "Olympic Medals"
+author: "Gabriela Diaz, Felicia Peterson, & Gabby Valle"
+date: "4/12/2022"
+output: html_document
+---
+
+```{r}
+#knitr::opts_chunk$set(echo = TRUE, error=TRUE, message=FALSE, warning=FALSE)
+```
+
+
+
+=======
 title: "rough draft"
 output: html_document
 ---
@@ -7,6 +21,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+>>>>>>> 8c707a4544e91917bc06def56c94eb5f4a8e30cb
 ```{r libraries}
 library(tidyverse)     # for data cleaning and plotting
 library(lubridate)     # for date manipulation
@@ -27,10 +42,18 @@ library(patchwork)     # for nicely combining ggplot2 graphs
 library(gt)            # for creating nice tables
 library(countrycode)
 theme_set(theme_minimal())
+<<<<<<< HEAD
+
+```
+
+## Original Data
+
+=======
 library(geofacet)
 library(tidytext)
 ```
 
+>>>>>>> 8c707a4544e91917bc06def56c94eb5f4a8e30cb
 ```{r}
 olympics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-07-27/olympics.csv')
 
@@ -40,6 +63,21 @@ world <- map_data("world")
 ```
 
 
+<<<<<<< HEAD
+
+Instructions that might be useful to remember:
+
+* **NEW!!** With animated graphs, add `eval=FALSE` to the code chunk that creates the animation and saves it using `anim_save()`. Add another code chunk to reread the gif back into the file. See the [tutorial](https://animation-and-interactivity-in-r.netlify.app/) for help. 
+
+* When you are finished with ALL the exercises, uncomment the options at the top so your document looks nicer. Don't do it before then, or else you might miss some important warnings and messages.
+
+
+##Taking data out "on a walk" (aka brainstorming)
+
+```{r}
+
+summer_gold2 <- summer_gold %>%
+=======
 ```{r}
 summer_gold <- olympics %>% 
   filter(season == "Summer") %>% 
@@ -86,11 +124,32 @@ summer_gold
 ```
 ```{r}
 countriesone<-summer_gold %>%
+>>>>>>> 8c707a4544e91917bc06def56c94eb5f4a8e30cb
   group_by(countryName) %>% 
   count(medal) %>% 
   arrange(desc(n)) #results in a medal count in descending order
 ```
 
+<<<<<<< HEAD
+
+
+##Mapping the Medals
+How have medals accumulated in each country over time?
+
+
+```{r}
+olympics2 <- olympics %>% 
+  select(noc, medal, year) %>% 
+  drop_na(medal) %>% 
+  filter(medal == "Gold") %>% 
+  group_by(noc, year) %>% 
+  summarize(n = n()) %>% 
+  mutate(cum_medals = cumsum(n)) %>% 
+  arrange(desc(n)) %>% 
+  mutate(countryName = countrycode(noc, "genc3c", "country.name")) %>% 
+  mutate(countryName = ifelse(countryName == "United States", "USA", countryName)) %>% 
+  mutate(countryName = ifelse(noc == "ALG", "Algeria", countryName)) %>% 
+=======
 Separate and compare each event and which countries earn the most gold
 - bar graph of all the countries that win gold
 - color by event 
@@ -127,6 +186,7 @@ summer_all <- olympics %>%
    mutate(countryName = countrycode(noc, "genc3c", "country.name")) %>% 
    mutate(countryName = ifelse(countryName == "United States", "USA", countryName)) %>% 
    mutate(countryName = ifelse(noc == "ALG", "Algeria", countryName)) %>% 
+>>>>>>> 8c707a4544e91917bc06def56c94eb5f4a8e30cb
    mutate(countryName = ifelse(noc == "BAH", "Bahamas", countryName)) %>%
    mutate(countryName = ifelse(noc == "BUL", "Bulgaria", countryName)) %>%
    mutate(countryName = ifelse(noc == "CHI", "Chile", countryName)) %>%
@@ -152,6 +212,59 @@ summer_all <- olympics %>%
    mutate(countryName = ifelse(noc == "UAE", "United Arab Emirates", countryName)) %>%
    mutate(countryName = ifelse(noc == "URU", "Uruguay", countryName)) %>%
    mutate(countryName = ifelse(noc == "VIE", "Vietnam", countryName)) %>%
+<<<<<<< HEAD
+   mutate(countryName = ifelse(noc == "ZIM", "Zimbabwe", countryName))
+
+world_map <- map_data("world")
+
+map_olympics <- olympics2 %>% 
+  ggplot()+
+  geom_map(map = world_map,
+           aes(map_id = countryName,
+               fill = cum_medals)) +
+  expand_limits(x = world_map$long, y = world_map$lat) +
+  scale_fill_gradient(low=cm.colors(20)[1], high=cm.colors(20)[20])+
+  theme_map() +
+  labs(title = "Number of Gold Medals per Country",
+       subtitle = "Year:{frame_along}" ) +
+  transition_reveal(as.integer(year)) 
+
+anim_map_olympics <- animate(map_olympics)
+
+anim_save("animmapolympic.gif", anim_map_olympics)
+```
+
+
+
+```{r}
+knitr::include_graphics("animmapolympic.gif")
+```
+In the animation above, you can see the medals accumulate since the beginning of the Olympics, which began in 1896 in Athens. It shows that the first countries to receive medals were mainly western countries, and the countries that accumulated the most medals were also western countries, particularly the US. It is interesting to see that countries would pop up throughout time, meaning that it was the first time they won a gold medal in the Olympics, but also signifying that it was one of the first times that athletes from this country were involved in the Olympics. Perhaps, wen we evaluate the athletic capabilities of each country, we should take into account the resources that certain countries posses that allow them to send multitudenous athletes to the Olympics.
+
+##Mapping the Olympics
+Where have the Olympics been located?
+
+```{r}
+olympic_coordinates <- tibble(
+  place = c("Paris","London","Beijing","Stockholm","Melbourne","Sydney","Atlanta","Moskva","Seoul","Los Angeles","Roma","Munich","Barcelona","St. Louis","Athina","Rio de Janeiro","Antwerpen","Montreal","Berlin","Helsinki","Tokyo","Amsterdam","Mexico City"),
+  long = c(2.3483915, 0.1276, 116.4074,18.0686, 144.9631, 151.2093,-84.3880, 37.6173, 126.9780, -118.2437, 12.4964, 11.5820, 2.1686, -90.1994, 23.7275, -43.1729, 4.4051, -73.5673, 13.4050, 24.9384, 139.6503, 4.9041, -99.1332),
+  lat = c(48.8534951, 51.5072, 39.9042, 59.3293, -37.8136, -33.8688, 33.7490, 55.7558, 37.5665, 34.0522, 41.9028, 48.1351, 41.3874, 38.6270, 37.9838, -22.9068, 51.2213, 45.5017, 52.5200, 60.1699, 35.6762, 52.3676, 19.4326))
+
+location_olympics <- summer_gold %>%
+  select(year, city) %>%
+  distinct(city) %>% pull(city)
+
+leaflet(data = olympic_coordinates) %>% 
+  addTiles() %>% 
+  addCircles(lng = ~long,
+             lat = ~lat,
+             label = ~place,
+             weight = 6)
+  
+```
+
+From the circles in the map above, we can see that most of the Olympics have been located in Europe and the United States. There is only only Olympic Games that has happened in South America, which was specifically in Rio de Janeiro. Throughout these Olympics, various issues occurred, including the destruction of houses located in favelas. Though it is important to have the Olympics in various locations around the world, as  it is an international event, it is also crucial to understand the implications and consequences of hosting the Olympics.
+=======
    mutate(countryName = ifelse(noc == "ZIM", "Zimbabwe", countryName)) %>% 
 drop_na(countryName)
 ```
@@ -191,3 +304,4 @@ graph2
 
 
 
+>>>>>>> 8c707a4544e91917bc06def56c94eb5f4a8e30cb
