@@ -274,10 +274,9 @@ Wearing protective gear: Most medal winning athletes in this category were betwe
 
 In water: Those in aquatic sports are noticeably taller as a general category than the other four. Most are 170cm or taller. Another general trend is that most athletes are under 80 kg, which reduces the range of weights that the other categories show. Most rowing medal winners are between 70-80 kg. Synchronized swimmers also have similar height/weight ratios, a bit taller than 170 cm and weighing around 60kg. 
 
-Just self: This category shows
+Just self: This category shows that each sport under this category is very particular with the height/weight ratios. Gymnastics are at the lowest height and weights of all the athletes. They are between 140-170 cm and under 60kg. Just like earlier, Track and Field (seen as Athletics) has many different events which is resulting in a larger range in body types for medal winning athletes. Volleyball and Basketball players are significantly taller on average, over 180cm. Because of those two sports, the height range is the largest for this category.
 
-While there is no one perfect body type, there is a distinct pattern for the height/weight ratios pertaining to each sport.
-
+While there is no one perfect body type, there are distinct patterns for the height/weight ratios pertaining to each sport.
 
 ## Gabby's Graph
 
