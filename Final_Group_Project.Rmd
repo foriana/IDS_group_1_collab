@@ -43,7 +43,6 @@ library(tidytext)
 Every four years (or two), the world holds its breath as individual humans represent whole countries through their mastery of a sport. We data scientists have analyzed the Summer Olympics from the year 1896 to 2016--yes, 120 years of the top athletes competing for the glory, and, perhaps more importantly, the gold. 
 
 
-
 ## Original Data
 
 This data hails from Kaggle from the games in Athens 1896 to Rio 2016; more recently, it was popularized through the weekly R challenge "Tidy Tuesday." Until 1992, the Winter and Summer Games coincided in the same year, which results in odd data points like a Figure Skating victory slipping into the Summer Olympics data sets. Other aspects of the history of the Olympics include the existence and end to whole nations as the years progress. Examples include East and West Germany and the Soviet Union--as well as unrecognized independent territories such as Kosovo and Taiwan. Our team's methodology to eliminate our own biases was to keep the data points that reflect 2016's Olympic Games for sports measured and the countries recognized are universally agreed upon by the international community. 
@@ -60,7 +59,7 @@ medal_colors <- c(
 
 ```
 
-Filtered Data Sets
+
 
 ```{r}
 summer_olympics <- olympics %>% 
@@ -127,7 +126,7 @@ medal_prop <- summer_olympics %>%
 
 ```
 
-Female-only, medal-winning data:
+
 
 ```{r}
 
@@ -137,18 +136,14 @@ golden_girls <- summer_gold %>%
 
 
 ```
-Instructions that might be useful to remember:
-
-* **NEW!!** With animated graphs, add `eval=FALSE` to the code chunk that creates the animation and saves it using `anim_save()`. Add another code chunk to reread the gif back into the file. See the [tutorial](https://animation-and-interactivity-in-r.netlify.app/) for help. 
-
-* When you are finished with ALL the exercises, uncomment the options at the top so your document looks nicer. Don't do it before then, or else you might miss some important warnings and messages.
-
-
 
 
 ## Felicia's Graphs
 
+In sports, there is often a disparity between men's and women's events. Women often get more scrutinized, especially for their looks, or ignored due to perceived lack of athleticism. Olympian athletes are some of the most publicized figures, which impacts the type of person who can achieve victory. We wanted to understand what Olympic data shows us about the differences between Olympic athletes in different situation.
+
 ## __1. Overall medals (gold, silver, and bronze) won by Olympians__
+
 
 ```{r, fig.height=5, fig.alt= "This bar graph shows the descending order of overall Olympic medals won based on gender. This feflects women not being allowed in competitions for a good portion of all Olympic Games. This graph is also skews heavily towards sports that naturally have more medals to win due to different events under the same sport category."}
 summer_olympics %>%
@@ -189,10 +184,11 @@ golden_girls %>%
   geom_point() + 
   labs(title = "Body Types of Olympic Medal Winning Female Athletes",
     y = "Height (cm)",
-       x = "Weight (kg)") 
+       x = "Weight (kg)") + 
+  theme(legend.title = element_blank())
 ```
 
-Above is a graph that shows all the female athletes in one graph, showing a wide range of heights and weights of Olympians. However, due to the amount of sports, the graph itself is very noisy. To better understand the trends, the same data is compiled into four different categories. 
+Above is a graph that shows all the female athletes in one graph, showing a wide range of heights and weights of Olympians. You can see there is a large range of body types on this graphes. However, due to the amount of sports, the graph itself is very noisy. To better understand the trends, the same data is compiled into four different categories:
 
 The first category is "Holding an object": These athletes are holding onto something, whether it is the reigns of a horse or a racket, they are armed. 
 
@@ -255,8 +251,8 @@ fig4 <- solo_gg %>%
   geom_point() +
   theme(legend.title = element_blank(),
         legend.text = element_text(size = 7)) + 
-  labs(x = "Height (cm)",
-       y = "Weight (kg)")
+  labs(y = "Height (cm)",
+       x = "Weight (kg)")
 
 
 fig1 + fig2 + fig3 + fig4 + 
@@ -264,6 +260,16 @@ fig1 + fig2 + fig3 + fig4 +
                   subtitle = "Trends in height and weight for female athletes depending on sport")
 ```
 
+
+Holding an object: Out of the four categories, athletes who held objects to compete in their sport had the least significant relationship between height and weight. They are mostly under 80 kg, but their heights vary. 
+
+Wearing protective gear: Most medal winning athletes in this category were between 160-180 cm and under 80 kg, unless they competed in Judo. Heavier weight seems to be advantageous for Judo competitors.
+
+In water: Those in aquatic sports are noticeably taller as a general category than the other four. Most are 170cm or taller. Another general trend is that most athletes are under 80 kg, which reduces the range of weights that the other categories show. Most rowing medal winners are between 70-80 kg. Synchronized swimmers also have similar height/weight ratios, a bit taller than 170 cm and weighing around 60kg. 
+
+Just self: This category shows
+
+While there is no one perfect body type, there is a distinct pattern for the height/weight ratios pertaining to each sport.
 
 ## __3. World map showing the proportion of Olympic medal wins to participation in events__
 
