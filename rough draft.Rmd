@@ -105,6 +105,8 @@ summer_gold2 <- summer_gold %>%
 ##Mapping the Medals
 How have medals accumulated in each country over time?
 
+In this animation, you can see the medals accumulate since the beginning of the Olympics, which began in 1896 in Athens. It shows that the first countries to receive medals were mainly western countries, and the countries that accumulated the most medals were also western countries, particularly the US. It is interesting to see that countries would pop up throughout time, meaning that it was the first time they won a gold medal in the Olympics, but also signifying that it was one of the first times that athletes from this country were involved in the Olympics. Perhaps, wen we evaluate the athletic capabilities of each country, we should take into account the resources that certain countries posses that allow them to send multitudenous athletes to the Olympics.
+
 ```{r}
 olympics2 <- olympics %>% 
   select(noc, medal, year) %>% 
@@ -170,6 +172,8 @@ knitr::include_graphics("animmapolympic.gif")
 
 ##Mapping the Olympics
 Where have the Olympics been located?
+
+From the circles, we can see that most of the Olympics have been located in Europe and the United States. There is only only Olympic Games that has happened in South America, which was specifically in Rio de Janeiro. Throughout these Olympics, various issues occurred, including the destruction of houses located in favelas. Though it is important to have the Olympics in various locations around the world, as  it is an international event, it is also crucial to understand the implications and consequences of hosting the Olympics.
 
 ```{r}
 olympic_coordinates <- tibble(
