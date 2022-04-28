@@ -11,7 +11,7 @@ html_document:
 ---
 
 ```{r}
-#knitr::opts_chunk$set(echo = TRUE, error=TRUE, message=FALSE, warning=FALSE)
+knitr::opts_chunk$set(echo = FALSE, error=FALSE, message=FALSE, warning=FALSE)
 ```
 
 
@@ -184,7 +184,7 @@ In general, the net amount of medals won is favored by sports within which have 
 golden_girls <- summer_medals %>% 
   filter(sex == "F") %>% 
   drop_na(height, weight) 
-golden_girls
+
 ```
 
 
@@ -212,19 +212,18 @@ Lastly, there is "Just self." These athletes are not holding anything, wearing s
 
 equip_gg <- golden_girls %>% 
   filter(sport == c("Badminton", "Cycling", "Equestrianism", "Golf",  "Hockey", "Shooting", "Softball", "Table Tennis", "Tennis", "Rhythmic Gymnastics", "Weightlifting"))
-equip_gg
+
 
 armor_gg <- golden_girls %>% 
   filter(sport == c("Boxing", "Judo", "Fencing", "Football", "Taekwondo", "Rugby Sevens"))
-armor_gg
+
 
 hydro_gg <- golden_girls %>% 
   filter(sport == c("Canoeing", "Diving", "Water Polo", "Rowing", "Swimming", "Synchronized Swimming", "Sailing"))
-hydro_gg
+
 
 solo_gg <- golden_girls %>%
   filter(sport == c("Athletics", "Basketball", "Beach Volleyball", "Gymnastics", "Handball", "Trampolining", "Triathalon", "Volleyball", "Wrestling" ))
-solo_gg
 
 
 ```

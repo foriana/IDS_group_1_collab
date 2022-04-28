@@ -407,7 +407,7 @@ shiny_summer <-olympics %>%
   mutate(countryName = ifelse(noc == "ZIM", "Zimbabwe", countryName)) %>% 
   drop_na(countryName) %>% 
   group_by(countryName, medal) %>% 
-  mutate(medal_count = cumsum(medal)) 
+  mutate(n = n())
 
 shiny_summer
  
