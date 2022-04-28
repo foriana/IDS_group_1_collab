@@ -1,0 +1,426 @@
+---
+title: "Analyzing Trends in Summer Olympic Games Medals"
+author: "Gabriela Diaz, Felicia Peterson, & Gabby Valle"
+date: "4/12/2022-4/30/2022"
+output: 
+html_document:
+    toc: TRUE
+    toc_float: TRUE
+    df_print: paged
+    code_download: true
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, error=FALSE, message=FALSE, warning=FALSE)
+```
+
+
+
+```{r libraries}
+library(tidyverse)     # for data cleaning and plotting
+library(lubridate)     # for date manipulation
+library(openintro)     # for the abbr2state() function
+library(maps)          # for map data
+library(ggmap)         # for mapping points on maps
+library(gplots)        # for col2hex() function
+library(RColorBrewer)  # for color palettes
+library(sf)            # for working with spatial data
+library(leaflet)       # for highly customizable mapping
+library(ggthemes)      
+library(plotly)        # for the ggplotly() - basic interactivity
+library(gganimate)     # for adding animation layers to ggplots
+library(gifski)        # for creating the gif (don't need to load this library every time,but need it installed)
+library(transformr)    # for "tweening" (gganimate)
+library(shiny)         # for creating interactive apps
+library(patchwork)     # for nicely combining ggplot2 graphs
+library(gt)            # for creating nice tables
+library(countrycode)
+theme_set(theme_minimal())
+library(tidytext)
+
+```
+
+Every four years (or two), the world holds its breath as individual humans represent whole countries through their mastery of a sport. We data scientists have analyzed the Summer Olympics from the year 1896 to 2016--yes, 120 years of the top athletes competing for the glory, and, perhaps more importantly, the gold. 
+
+
+
+## Original Data
+
+This data hails from Kaggle from the games in Athens 1896 to Rio 2016; more recently, it was popularized through the weekly R challenge "Tidy Tuesday." Until 1992, the Winter and Summer Games coincided in the same year, which results in odd data points like a Figure Skating victory slipping into the Summer Olympics data sets. Other aspects of the history of the Olympics include the existence and end to whole nations as the years progress. Examples include East and West Germany and the Soviet Union--as well as unrecognized independent territories such as Kosovo and Taiwan. Our team's methodology to eliminate our own biases was to keep the data points that reflect 2016's Olympic Games for sports measured and the countries recognized are universally agreed upon by the international community. 
+
+```{r}
+olympics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-07-27/olympics.csv')
+
+world <- map_data("world")
+
+medal_colors <- c(
+  Gold = "#d5a500",
+  Silver = "#b7b7b7",
+  Bronze = "#a17419")
+
+```
+
+Filtered Data Sets
+
+```{r}
+summer_olympics <- olympics %>% 
+  filter(season == "Summer") %>% 
+   mutate(countryName = countrycode(noc, "genc3c", "country.name")) %>% 
+   mutate(countryName = ifelse(countryName == "United States", "USA", countryName)) %>% 
+   mutate(countryName = ifelse(noc == "ALG", "Algeria", countryName)) %>% 
+   mutate(countryName = ifelse(noc == "BAH", "Bahamas", countryName)) %>%
+   mutate(countryName = ifelse(noc == "BUL", "Bulgaria", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CHI", "Chile", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CRC", "Costa Rica", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CRO", "Croatia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CZA", "Czech Republic", countryName)) %>%
+   mutate(countryName = ifelse(noc == "DEN", "Denmark", countryName)) %>%
+   mutate(countryName = ifelse(noc == "FIJ", "Fiji", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GER", "Germany", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GRE", "Greece", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GRN", "Grenada", countryName)) %>%
+   mutate(countryName = ifelse(noc == "HAI", "Haiti", countryName)) %>%
+   mutate(countryName = ifelse(noc == "INA", "Indonesia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "IRI", "Iran", countryName)) %>%
+   mutate(countryName = ifelse(noc == "LAT", "Latvia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "MGL", "Mongolia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "NED", "Netherlands", countryName)) %>%
+   mutate(countryName = ifelse(noc == "NGR", "Nigeria", countryName)) %>%
+   mutate(countryName = ifelse(noc == "POR", "Portugal", countryName)) %>%
+   mutate(countryName = ifelse(noc == "PUR", "Puerto Rico", countryName)) %>%
+   mutate(countryName = ifelse(noc == "RSA", "South Africa", countryName)) %>%
+   mutate(countryName = ifelse(noc == "SLO", "Slovenia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "SUI", "Switzerland", countryName)) %>%
+   mutate(countryName = ifelse(noc == "UAE", "United Arab Emirates", countryName)) %>%
+   mutate(countryName = ifelse(noc == "URU", "Uruguay", countryName)) %>%
+   mutate(countryName = ifelse(noc == "VIE", "Vietnam", countryName)) %>%
+   mutate(countryName = ifelse(noc == "ZIM", "Zimbabwe", countryName)) 
+
+
+# Footnote or mention in part of the project the choice to leave out territories not fully recognized, such as Kosovo and Chinese Taipei, and countries that no longer exist, including the Soviet Union and Yugoslavia. 
+
+
+summer_gold <- summer_olympics %>% 
+  drop_na(medal) %>% 
+  filter(medal == "Gold") 
+
+summer_medals <- summer_olympics %>% 
+  drop_na(medal)
+
+medal_prop <- summer_olympics %>% 
+  count(countryName, medal) %>% 
+  group_by(countryName) %>% 
+  filter(any(!is.na(medal))) %>% 
+  mutate(medal = ifelse(is.na(medal), "No Medal", medal)) %>% 
+  pivot_wider(
+    names_from = medal,
+    values_from = n,
+    values_fill = 0) %>% 
+  mutate(
+    total_medals = Gold + Silver + Bronze,
+    total_events = total_medals + `No Medal`,
+    p_medal = total_medals / total_events) %>% 
+  arrange(desc(total_medals))
+
+
+
+
+```
+
+Female-only, medal-winning data:
+
+```{r}
+
+golden_girls <- summer_gold %>% 
+  filter(sex == "F") %>% 
+  drop_na(height, weight) 
+
+
+```
+Instructions that might be useful to remember:
+
+* **NEW!!** With animated graphs, add `eval=FALSE` to the code chunk that creates the animation and saves it using `anim_save()`. Add another code chunk to reread the gif back into the file. See the [tutorial](https://animation-and-interactivity-in-r.netlify.app/) for help. 
+
+* When you are finished with ALL the exercises, uncomment the options at the top so your document looks nicer. Don't do it before then, or else you might miss some important warnings and messages.
+
+
+
+
+## Felicia's Graphs
+
+## __1. Overall medals (gold, silver, and bronze) won by Olympians__
+
+```{r, fig.height=5, fig.alt= "This bar graph shows the descending order of overall Olympic medals won based on gender. This feflects women not being allowed in competitions for a good portion of all Olympic Games. This graph is also skews heavily towards sports that naturally have more medals to win due to different events under the same sport category."}
+summer_olympics %>%
+  group_by(sex, sport) %>% 
+  count(medal) %>% 
+  filter(!(sport %in% c("Aeronautics", "Art Competitions", "Jeu De Paume", "Roque", "Alpinism", "Basque Pelota", "Croquet", "Racquets", "Figure Skating", "Ice Hockey", "Cricket", "Polo", "Trampolining", "Tug-Of-War", "Motorboating"))) %>% 
+  ggplot(aes(x = n, y = reorder(sport, n), fill = sex)) + 
+  geom_col() +
+  labs(y = "",
+        title = "Overall medals won by male and female Olympians",
+       x = "")
+
+
+```
+
+In general, the net amount of medals won is favored by sports within which have multiple opportunities to medal. One example includes Athletics, also known as "Track and Field," having multiple races, team relays, and field events for athletes to earn medals in. Other result by contrasting by gender shows both the lack of female inclusion for a significant period of time, reflecting gender dynamics over the decades, as well as sports that are more dominated by one gender. Synchronized Swimming, Rhythmic Gymnastics appear to only have female champions, while Wrestling, the Modern Pentathlon, Rugby, and Lacrosse appear to have majority male winners.  
+
+
+
+## __2. Olympic medal winning women's heights and weights__
+
+```{r}
+#weight in kg
+# Athletics = track and field
+# Hockey = Field Hockey
+#Leaving out figure skating because  1920s Olympics, one gold winner
+
+golden_girls <- summer_medals %>% 
+  filter(sex == "F") %>% 
+  drop_na(height, weight) 
+
+```
+
+
+```{r, fig.height = 5, fig.width = 7, fig.alt= "This graph shows the heights and weights of women who competed in the Olympics and won a medal."}
+golden_girls %>% 
+  ggplot(aes(x = weight, y = height, color = sport)) +
+  geom_point() + 
+  labs(title = "Body Types of Olympic Medal Winning Female Athletes",
+    y = "Height (cm)",
+       x = "Weight (kg)") 
+```
+
+Above is a graph that shows all the female athletes in one graph, showing a wide range of heights and weights of Olympians. However, due to the amount of sports, the graph itself is very noisy. To better understand the trends, the same data is compiled into four different categories. 
+
+The first category is "Holding an object": These athletes are holding onto something, whether it is the reigns of a horse or a racket, they are armed. 
+
+The second is "Wearing protective gear." The athletes in this category are wearing an extra layer designed for their sport to reduce injury. 
+
+The third is "In water." As it sounds, these athletes are found in the water to compete. 
+
+Lastly, there is "Just self." These athletes are not holding anything, wearing something meant to protect them, or are in the water.
+
+
+```{r}
+
+equip_gg <- golden_girls %>% 
+  filter(sport == c("Badminton", "Cycling", "Equestrianism", "Golf",  "Hockey", "Shooting", "Softball", "Table Tennis", "Tennis", "Rhythmic Gymnastics", "Weightlifting"))
+
+
+armor_gg <- golden_girls %>% 
+  filter(sport == c("Boxing", "Judo", "Fencing", "Football", "Taekwondo", "Rugby Sevens"))
+
+
+hydro_gg <- golden_girls %>% 
+  filter(sport == c("Canoeing", "Diving", "Water Polo", "Rowing", "Swimming", "Synchronized Swimming", "Sailing"))
+
+
+solo_gg <- golden_girls %>%
+  filter(sport == c("Athletics", "Basketball", "Beach Volleyball", "Gymnastics", "Handball", "Trampolining", "Triathalon", "Volleyball", "Wrestling" ))
+
+
+```
+
+```{r, fig.height= 7, fig.width = 7, fig.alt= "This is a series of graphs that filter out sports into four distinct categories."}
+fig1 <- equip_gg %>% 
+  ggplot(aes(x = weight, y = height, color = sport)) +
+  geom_point() +
+  theme(legend.title = element_blank(),
+        legend.text = element_text(size = 7)) +
+  labs(x = "",
+       y = "")
+
+fig2 <- armor_gg %>% 
+  ggplot(aes(x = weight, y = height, color = sport)) +
+  geom_point() +
+  theme(legend.title = element_blank(),
+        legend.text = element_text(size = 7)) +
+  labs(x = "",
+       y = "")
+ 
+
+fig3 <- hydro_gg %>% 
+  ggplot(aes(x = weight, y = height, color = sport)) +
+  geom_point() +
+  theme(legend.title = element_blank(),
+        legend.text = element_text(size = 7)) + 
+   labs(x = "Weight (cm)",
+       y = "Height (kg)")
+
+fig4 <- solo_gg %>% 
+  ggplot(aes(x = weight, y = height, color = sport),
+         legend.text = element_text(size = 7)) +
+  geom_point() +
+  theme(legend.title = element_blank(),
+        legend.text = element_text(size = 7)) + 
+  labs(x = "Height (cm)",
+       y = "Weight (kg)")
+
+
+fig1 + fig2 + fig3 + fig4 + 
+  plot_annotation(title = "Olympic Medal Winning Women",
+                  subtitle = "Trends in height and weight for female athletes depending on sport")
+```
+
+
+## __3. World map showing the proportion of Olympic medal wins to participation in events__
+
+```{r, fig.width = 7, fig.alt="This world map shows the proportion of Olympic medal wins to participation in events per country. The United States has the largest proportion of medal earnings to individual participation in the Olympics, followed by Russia, Germany, and Finland."}
+
+medal_prop %>% 
+  mutate(countryName = ifelse(countryName == "United States", "USA", countryName)) %>% 
+  ggplot() +
+  geom_map(map = world, 
+           aes(map_id = countryName,
+               fill = p_medal)) +
+  scale_fill_gradient(low=cm.colors(20)[1], high=cm.colors(20)[20])+
+  #scale_colour_manual(values = countryName, na.value = "#34521") + 
+  expand_limits(x = world$long, y = world$lat) +
+  theme_map() +
+  labs(fill = "Proportion of Medals") +
+  theme(legend.key = element_rect(fill = "transparent"))
+ 
+```
+
+The map above adds depth to our understanding of Olympic medal winning countries. Previous maps show an extreme domination in the Olympics by the United States of America, but taking the wins in relation to total participation, other countries emerge as prolific medal winners as well. Russia, Finland, Germany, and China also tend to win more often when their athletes are competing. The United States still is at the highest level of medal wins. One other aspect to note are all the medals won by countries that no longer exist today, like the USSR and East and West Germany. This graph tells a more accurate story of where champions are from, but cannot wholly depict the wins every achieved in the world. 
+
+
+##Gabby's Graph
+
+```{r}
+gold_na <- olympics %>% 
+  filter(season == "Summer") %>% 
+  drop_na(medal) %>% 
+  filter(medal == "Gold") %>% 
+   mutate(countryName = countrycode(noc, "genc3c", "country.name")) %>% 
+   mutate(countryName = ifelse(countryName == "USA", "United States", countryName)) %>% 
+   mutate(countryName = ifelse(noc == "ALG", "Algeria", countryName)) %>% 
+   mutate(countryName = ifelse(noc == "BAH", "Bahamas", countryName)) %>%
+   mutate(countryName = ifelse(noc == "BUL", "Bulgaria", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CHI", "Chile", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CRC", "Costa Rica", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CRO", "Croatia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "DEN", "Denmark", countryName)) %>%
+   mutate(countryName = ifelse(noc == "FIJ", "Fiji", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GER", "Germany", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GRE", "Greece", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GRN", "Grenada", countryName)) %>%
+   mutate(countryName = ifelse(noc == "HAI", "Haiti", countryName)) %>%
+   mutate(countryName = ifelse(noc == "INA", "Indonesia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "IRI", "Iran", countryName)) %>%
+   mutate(countryName = ifelse(noc == "LAT", "Latvia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "MGL", "Mongolia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "NED", "Netherlands", countryName)) %>%
+   mutate(countryName = ifelse(noc == "NGR", "Nigeria", countryName)) %>%
+   mutate(countryName = ifelse(noc == "POR", "Portugal", countryName)) %>%
+   mutate(countryName = ifelse(noc == "PUR", "Puerto Rico", countryName)) %>%
+   mutate(countryName = ifelse(noc == "RSA", "South Africa", countryName)) %>%
+   mutate(countryName = ifelse(noc == "SLO", "Slovenia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "SUI", "Switzerland", countryName)) %>%
+   mutate(countryName = ifelse(noc == "UAE", "United Arab Emirates", countryName)) %>%
+   mutate(countryName = ifelse(noc == "URU", "Uruguay", countryName)) %>%
+   mutate(countryName = ifelse(noc == "VIE", "Vietnam", countryName)) %>%
+   mutate(countryName = ifelse(noc == "ZIM", "Zimbabwe", countryName)) %>% 
+drop_na(countryName)
+
+```
+##__4. 
+
+```{r, fig.height=5, fig.alt= "This graphs is a basic bar graph that shows us the number of gold medals earned by each participating country"}
+gold_na %>% 
+  group_by(countryName) %>%
+  count() %>% 
+  ggplot(aes(x=n, y=reorder(countryName,n)))+
+  geom_col()+
+  labs(x="", y= "", title="Number of gold medals earned per country")
+
+``` 
+The map above gives us a basic idea of how many gold medals are earned per country in the olympics. It's very obvious that the United States outnumber every other country by far with the second and third place countries having over 1000 less.As the numbers of gold medals won decrease, it becomes harder to distinguish the count. While this graph gives us an idea of what countries dominate the summer olympics, we have little details on what events they are winning them in.
+
+##__5.
+```{r, fig.height=9, fig.width=10, fig.alt="This is a series of graphs focusing on only countries that have won more than 20 gold medals. Each country has a graph displaying which events have won the most gold medals in descending order"}
+gold_na%>% 
+  group_by(countryName, sport) %>% 
+  count() %>% 
+  filter(n>20) %>% 
+  ungroup %>% 
+  mutate(sport2=reorder_within(sport,n,countryName)) %>% 
+  ggplot(aes(x=n, y=sport2, fill=sport))+
+  geom_col()+
+  facet_wrap(vars(fct_reorder(countryName,n,sum,.desc = TRUE)),scales = "free_y")+
+  scale_y_reordered()+
+  labs(title="Countries that have won more than 20 gold medals")
+```
+Above is a series of 34 graphs, each graph represents a country that has won more than 20 gold medals, and displays what events they have received the gold medals in. These graphs give us a detailed look on the events that are winning the most gold medals for each country that we are looking at. These graphs allow us to compare and contrast the countries since they are all in one place, and easy to distinguish the sports because not only did we color code them, we included the names of them on the y-axis to make it easier. It's interesting to see which countries have won gold medals in only one sport, and what sport that is. By the same token, these graphs are multipurposeful because they show us how many sports each country has won gold medals in, and the distribution of those medals as well.
+
+
+```{r}
+summer_all <- olympics %>% 
+  filter(season == "Summer") %>% 
+   mutate(countryName = countrycode(noc, "genc3c", "country.name")) %>% 
+   mutate(countryName = ifelse(countryName == "United States", "USA", countryName)) %>% 
+   mutate(countryName = ifelse(noc == "ALG", "Algeria", countryName)) %>% 
+   mutate(countryName = ifelse(noc == "BAH", "Bahamas", countryName)) %>%
+   mutate(countryName = ifelse(noc == "BUL", "Bulgaria", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CHI", "Chile", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CRC", "Costa Rica", countryName)) %>%
+   mutate(countryName = ifelse(noc == "CRO", "Croatia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "DEN", "Denmark", countryName)) %>%
+   mutate(countryName = ifelse(noc == "FIJ", "Fiji", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GER", "Germany", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GRE", "Greece", countryName)) %>%
+   mutate(countryName = ifelse(noc == "GRN", "Grenada", countryName)) %>%
+   mutate(countryName = ifelse(noc == "HAI", "Haiti", countryName)) %>%
+   mutate(countryName = ifelse(noc == "INA", "Indonesia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "IRI", "Iran", countryName)) %>%
+   mutate(countryName = ifelse(noc == "LAT", "Latvia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "MGL", "Mongolia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "NED", "Netherlands", countryName)) %>%
+   mutate(countryName = ifelse(noc == "NGR", "Nigeria", countryName)) %>%
+   mutate(countryName = ifelse(noc == "POR", "Portugal", countryName)) %>%
+   mutate(countryName = ifelse(noc == "PUR", "Puerto Rico", countryName)) %>%
+   mutate(countryName = ifelse(noc == "RSA", "South Africa", countryName)) %>%
+   mutate(countryName = ifelse(noc == "SLO", "Slovenia", countryName)) %>%
+   mutate(countryName = ifelse(noc == "SUI", "Switzerland", countryName)) %>%
+   mutate(countryName = ifelse(noc == "UAE", "United Arab Emirates", countryName)) %>%
+   mutate(countryName = ifelse(noc == "URU", "Uruguay", countryName)) %>%
+   mutate(countryName = ifelse(noc == "VIE", "Vietnam", countryName)) %>%
+   mutate(countryName = ifelse(noc == "ZIM", "Zimbabwe", countryName)) %>% 
+drop_na(countryName)
+```
+
+##__6.
+```{r, fig.alt="Below is a pair of graphs. The first graph shows the proportion of medals won by the top 10 countries . The second graph shows the number of medals won by the top 10 countries"}
+prop_of_medals<-summer_all %>% 
+  drop_na(medal) %>% 
+  filter(countryName %in% c("USA", "United Kingdom", "Germany", "France", "Italy", "Australia", "Hungary", "Sweden", "Netherlands", "China")) %>% 
+  count(countryName, medal) %>% 
+  group_by(countryName) %>% 
+  mutate(proportion=n/sum(n)) 
+
+graph1<-prop_of_medals %>% 
+  ggplot(aes(y=countryName,x=proportion,fill=fct_relevel(medal,c("Bronze","Silver"))))+
+  scale_fill_manual(values=c("Bronze"="#a17419",Silver = "#b7b7b7", Gold = "#d5a500"))+
+  geom_col()+
+  labs(title="Distribution of medals won by the top 10 countries",y="",x="Proportion", fill=NULL)
+
+
+
+graph2<-prop_of_medals %>% 
+  ggplot(aes(y=fct_reorder(countryName,n,sum),x=n,fill=fct_relevel(medal,c("Bronze","Silver"))))+
+  scale_fill_manual(values=c("Bronze"="#a17419",Silver = "#b7b7b7", Gold = "#d5a500"))+
+  geom_col()+
+  theme(legend.title = element_blank())+
+  labs(title = "Number of medals won by the top 10 countries", y="", x="Count", fill=NULL)
+
+
+
+ggplotly(graph1)
+
+graph2
+```
+Above are two graphs dealing with a similar concept, looking at earned medals as a whole for the 10 highest winning countries. Previous graphs have only focused on gold medals, while these two graphs bring in all three medals, providing us with a bigger picture. The first graph, the plotly, displays the distribution of medals won by the top 10 countries. Since this graph is proportional we can compare the amount of medals earned by countries by the percentage distribution of each medal. The second graph, gives us similar information but doesn't show the number of medals as proportions. Here we just see how many of each type of medal each of our top countries have won, in descending order. We can still somewhat estimate the proportion of each medal for each country but here we see which countries have the most medals once again.
+
+
