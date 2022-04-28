@@ -42,11 +42,6 @@ library(tidytext)
 
 Every four years (or two), the world holds its breath as individual humans represent whole countries through their mastery of a sport. We data scientists have analyzed the Summer Olympics from the year 1896 to 2016--yes, 120 years of the top athletes competing for the glory, and, perhaps more importantly, the gold. 
 
-## __Research Questions GO HERE__
-##Important DO BEFORE TURNING IN
-More criteria: Findings are woven together in a cohesive story, rather than presented as a list of distinct ideas.
-
-**You should also eliminate the code by adding echo=FALSE** to the options. You may want to wait until after your analysis is complete to include that section because you don’t want to miss those while you’re working on your analysis.
 
 
 ## Original Data
