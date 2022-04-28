@@ -1,6 +1,6 @@
 ---
 title: "Analyzing Trends in Summer Olympic Games Medals"
-author: "Gabriela Diaz, Felicia Peterson, & Gabby Valle"
+author: "Gabriela Diaz, Felicia Peterson, & Gaby Valle"
 date: "4/12/2022-4/30/2022"
 output: 
 html_document:
@@ -11,7 +11,7 @@ html_document:
 ---
 
 ```{r}
-#knitr::opts_chunk$set(echo = TRUE, error=TRUE, message=FALSE, warning=FALSE)
+#knitr::opts_chunk$set(echo = FALSE, error=TRUE, message=FALSE, warning=FALSE)
 ```
 
 
@@ -42,11 +42,7 @@ library(tidytext)
 
 Every four years (or two), the world holds its breath as individual humans represent whole countries through their mastery of a sport. We data scientists have analyzed the Summer Olympics from the year 1896 to 2016--yes, 120 years of the top athletes competing for the glory, and, perhaps more importantly, the gold. 
 
-## __Research Questions GO HERE__
-##Important DO BEFORE TURNING IN
-More criteria: Findings are woven together in a cohesive story, rather than presented as a list of distinct ideas.
 
-**You should also eliminate the code by adding echo=FALSE** to the options. You may want to wait until after your analysis is complete to include that section because you don’t want to miss those while you’re working on your analysis.
 
 
 ## Original Data
@@ -134,7 +130,7 @@ medal_prop <- summer_olympics %>%
 
 Female-only, medal-winning data:
 
-```{r}
+```{r, echo=FALSE}
 
 golden_girls <- summer_gold %>% 
   filter(sex == "F") %>% 
@@ -155,7 +151,7 @@ Instructions that might be useful to remember:
 
 ## __1. Overall medals (gold, silver, and bronze) won by Olympians__
 
-```{r, fig.height=5, fig.alt= "This bar graph shows the descending order of overall Olympic medals won based on gender. This feflects women not being allowed in competitions for a good portion of all Olympic Games. This graph is also skews heavily towards sports that naturally have more medals to win due to different events under the same sport category."}
+```{r, fig.height=5, fig.alt= "This bar graph shows the descending order of overall Olympic medals won based on gender. This feflects women not being allowed in competitions for a good portion of all Olympic Games. This graph is also skews heavily towards sports that naturally have more medals to win due to different events under the same sport category.", echo=FALSE}
 summer_olympics %>%
   group_by(sex, sport) %>% 
   count(medal) %>% 
@@ -175,7 +171,7 @@ In general, the net amount of medals won is favored by sports within which have 
 
 ## __2. Olympic medal winning women's heights and weights__
 
-```{r}
+```{r, echo=FALSE}
 #weight in kg
 # Athletics = track and field
 # Hockey = Field Hockey
@@ -188,7 +184,7 @@ golden_girls
 ```
 
 
-```{r, fig.height = 5, fig.width = 7, fig.alt= "This graph shows the heights and weights of women who competed in the Olympics and won a medal."}
+```{r, fig.height = 5, fig.width = 7, fig.alt= "This graph shows the heights and weights of women who competed in the Olympics and won a medal.", echo=FALSE}
 golden_girls %>% 
   ggplot(aes(x = weight, y = height, color = sport)) +
   geom_point() + 
@@ -208,7 +204,7 @@ The third is "In water." As it sounds, these athletes are found in the water to 
 Lastly, there is "Just self." These athletes are not holding anything, wearing something meant to protect them, or are in the water.
 
 
-```{r}
+```{r, echo=FALSE}
 
 equip_gg <- golden_girls %>% 
   filter(sport == c("Badminton", "Cycling", "Equestrianism", "Golf",  "Hockey", "Shooting", "Softball", "Table Tennis", "Tennis", "Rhythmic Gymnastics", "Weightlifting"))
@@ -229,7 +225,7 @@ solo_gg
 
 ```
 
-```{r, fig.height= 7, fig.width = 7, fig.alt= "This is a series of graphs that filter out sports into four distinct categories."}
+```{r, fig.height= 7, fig.width = 7, fig.alt= "This is a series of graphs that filter out sports into four distinct categories.", echo=FALSE}
 fig1 <- equip_gg %>% 
   ggplot(aes(x = weight, y = height, color = sport)) +
   geom_point() +
@@ -273,7 +269,7 @@ fig1 + fig2 + fig3 + fig4 +
 
 ## __3. World map showing the proportion of Olympic medal wins to participation in events__
 
-```{r, fig.width = 7, fig.alt="This world map shows the proportion of Olympic medal wins to participation in events per country. The United States has the largest proportion of medal earnings to individual participation in the Olympics, followed by Russia, Germany, and Finland."}
+```{r, fig.width = 7, fig.alt="This world map shows the proportion of Olympic medal wins to participation in events per country. The United States has the largest proportion of medal earnings to individual participation in the Olympics, followed by Russia, Germany, and Finland.", echo=FALSE}
 
 medal_prop %>% 
   mutate(countryName = ifelse(countryName == "United States", "USA", countryName)) %>% 
@@ -295,7 +291,7 @@ The map above adds depth to our understanding of Olympic medal winning countries
 
 ##Gabby's Graph
 
-```{r}
+```{r, echo=FALSE}
 gold_na <- olympics %>% 
   filter(season == "Summer") %>% 
   drop_na(medal) %>% 
@@ -332,9 +328,9 @@ gold_na <- olympics %>%
 drop_na(countryName)
 
 ```
-##__4. 
+##__4. Which countries have won the most gold medals?
 
-```{r, fig.height=5, fig.alt= "This graphs is a basic bar graph that shows us the number of gold medals earned by each participating country"}
+```{r, fig.height=5, fig.alt= "This graphs is a basic bar graph that shows us the number of gold medals earned by each participating country", echo=FALSE}
 gold_na %>% 
   group_by(countryName) %>%
   count() %>% 
@@ -345,8 +341,8 @@ gold_na %>%
 ``` 
 The map above gives us a basic idea of how many gold medals are earned per country in the olympics. It's very obvious that the United States outnumber every other country by far with the second and third place countries having over 1000 less.As the numbers of gold medals won decrease, it becomes harder to distinguish the count. While this graph gives us an idea of what countries dominate the summer olympics, we have little details on what events they are winning them in.
 
-##__5.
-```{r, fig.height=9, fig.width=10, fig.alt="This is a series of graphs focusing on only countries that have won more than 20 gold medals. Each country has a graph displaying which events have won the most gold medals in descending order"}
+##__5. When looking at countries that have won more than 20 gold medals, which sports have won the most gold medals for each country?
+```{r, fig.height=9, fig.width=10, fig.alt="This is a series of graphs focusing on only countries that have won more than 20 gold medals. Each country has a graph displaying which events have won the most gold medals in descending order", echo=FALSE}
 gold_na%>% 
   group_by(countryName, sport) %>% 
   count() %>% 
@@ -362,7 +358,7 @@ gold_na%>%
 Above is a series of 34 graphs, each graph represents a country that has won more than 20 gold medals, and displays what events they have received the gold medals in. These graphs give us a detailed look on the events that are winning the most gold medals for each country that we are looking at. These graphs allow us to compare and contrast the countries since they are all in one place, and easy to distinguish the sports because not only did we color code them, we included the names of them on the y-axis to make it easier. It's interesting to see which countries have won gold medals in only one sport, and what sport that is. By the same token, these graphs are multipurposeful because they show us how many sports each country has won gold medals in, and the distribution of those medals as well.
 
 
-```{r}
+```{r, echo=FALSE}
 summer_all <- olympics %>% 
   filter(season == "Summer") %>% 
    mutate(countryName = countrycode(noc, "genc3c", "country.name")) %>% 
@@ -397,8 +393,8 @@ summer_all <- olympics %>%
 drop_na(countryName)
 ```
 
-##__6.
-```{r, fig.alt="Below is a pair of graphs. The first graph shows the proportion of medals won by the top 10 countries . The second graph shows the number of medals won by the top 10 countries"}
+##__6. What does the distribution of medals look like for the 10 highest medal earning countries?
+```{r, fig.alt="Below is a pair of graphs. The first graph shows the proportion of medals won by the top 10 countries . The second graph shows the number of medals won by the top 10 countries", echo=FALSE}
 prop_of_medals<-summer_all %>% 
   drop_na(medal) %>% 
   filter(countryName %in% c("USA", "United Kingdom", "Germany", "France", "Italy", "Australia", "Hungary", "Sweden", "Netherlands", "China")) %>% 
